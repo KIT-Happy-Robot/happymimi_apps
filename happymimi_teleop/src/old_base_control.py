@@ -61,11 +61,6 @@ class BaseControl():
                         rospy.sleep(0.1)
                         self.twist_pub.publish(self.twist_value)
                     break
-                elif self.current_deg < 0.0:
-                    while self.sub_target_deg >= self.current_deg:
-                        rospy.sleep(0.1)
-                        self.twist_pub.publish(self.twist_value)
-                    break
                 else:
                     pass
         elif self.twist_value.angular.z < 0.0:
@@ -115,7 +110,7 @@ class BaseControl():
             self.target_deg = self.current_deg + deg
             if self.target_deg >= 180:
                 self.remain_deg = self.target_deg - 180
-                self.sub_target_deg = self.remain_deg -180
+                self.sub_target_deg = -180 + self.remain_deg
             else:
                 pass
             self.twist_value.angular.z = speed
