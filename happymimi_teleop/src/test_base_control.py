@@ -52,29 +52,36 @@ class BaseControl():
     def publishTwist(self):
         if self.twist_value.angular.z > 0.0:
             print("rotateAngle")
-            while self.target_deg >= self.current_deg:
-                # time.sleep((0.1)
+            while not rospy.is_shutdown():
                 rospy.sleep(0.3)
-                self.twist_pub.publish(self.twist_value)
-                if self.current_deg < -179:
+                if self.target_deg >= self.current_deg and self.current_deg < -179:
                     while self.sub_target_deg >= self.current_deg:
-                        rospy.sleep(0.1)
+                        rospy.sleep(0.3)
+                        print '11111111111111111111111'
+                        self.twist_pub.publish(self.twist_value)
+                    break
+                elif self.target_deg >= self.current_deg and self.current_deg < 0.0:
+                    while self.sub_target_deg >= self.current_deg:
+                        rospy.sleep(0.3)
+                        print '22222222222222222222222'
                         self.twist_pub.publish(self.twist_value)
                     break
                 else:
-                    pass
+                    self.twist_pub.publish(self.twist_value)
+                    print '333333333333333333333333333'
         elif self.twist_value.angular.z < 0.0:
             print("rotateAngle")
-            while self.target_deg <= self.current_deg:
+            while not rospy.is_shutdown():
                 rospy.sleep(0.3)
-                self.twist_pub.publish(self.twist_value)
-                if self.current_deg > 179:
+                if self.target_deg <= self.current_deg and self.current_deg > 179:
                     while self.sub_target_deg <= self.current_deg:
                         rospy.sleep(0.3)
                         self.twist_pub.publish(self.twist_value)
+                        print 'plus111111111111'
                     break
                 else:
-                    pass
+                    self.twist_pub.publish(self.twist_value)
+                    print 'plus2222222222222222'
         else:
             print("translateDist")
             start_time = time.time()
@@ -110,7 +117,7 @@ class BaseControl():
             self.target_deg = self.current_deg + deg
             if self.target_deg >= 180:
                 self.remain_deg = self.target_deg - 180
-                self.sub_target_deg = -180 + self.remain_deg
+                self.sub_target_deg = self.remain_deg -180
             else:
                 pass
             self.twist_value.angular.z = speed
@@ -118,7 +125,7 @@ class BaseControl():
             self.target_deg = self.current_deg + deg
             if self.target_deg <= -180:
                 self.remain_deg = self.target_deg + 180
-                self.sub_target_deg = 180 + self.remain_deg
+                self.target_deg = 180 + self.remain_deg
             else:
                 pass
             self.twist_value.angular.z = -speed
