@@ -47,6 +47,11 @@ class BaseControl():
         self.current_euler = tf.transformations.euler_from_quaternion(self.quaternion)
         #print(self.current_euler)
         self.current_deg = math.degrees(self.current_euler[2])
+        if self.current_deg < 0.0:
+            sub_deg = 180 - abs(self.current_deg)
+            self.current_deg = 180 + sub_deg
+        else:
+            pass
         #print(self.current_deg)
 
     def publishTwist(self):
@@ -54,34 +59,22 @@ class BaseControl():
             print("rotateAngle")
             while not rospy.is_shutdown():
                 rospy.sleep(0.3)
-                if self.target_deg >= self.current_deg and self.current_deg < -179:
-                    while self.sub_target_deg >= self.current_deg:
-                        rospy.sleep(0.3)
-                        print '11111111111111111111111'
-                        self.twist_pub.publish(self.twist_value)
+                if self.target_deg < 360 and self.current_deg >= self.target_deg:
                     break
-                elif self.target_deg >= self.current_deg and self.current_deg < 0.0:
-                    while self.sub_target_deg >= self.current_deg:
-                        rospy.sleep(0.3)
-                        print '22222222222222222222222'
-                        self.twist_pub.publish(self.twist_value)
+                elif self.target_deg >= 360 and self.current_deg <= 180 and self.current_deg >= self.sub_target_deg:
                     break
                 else:
-                    self.twist_pub.publish(self.twist_value)
-                    print '333333333333333333333333333'
+                    self.twist_pub.publish(selt.twist_value)
         elif self.twist_value.angular.z < 0.0:
             print("rotateAngle")
             while not rospy.is_shutdown():
                 rospy.sleep(0.3)
-                if self.target_deg <= self.current_deg and self.current_deg > 179:
-                    while self.sub_target_deg <= self.current_deg:
-                        rospy.sleep(0.3)
-                        self.twist_pub.publish(self.twist_value)
-                        print 'plus111111111111'
+                if self.target_deg > 0.0 and self.current_deg <= self.target_deg:
+                    break
+                elif self.target_deg < 0.0 and self.current_deg >= 180 and self.current_deg <= self.sub_target_deg:
                     break
                 else:
                     self.twist_pub.publish(self.twist_value)
-                    print 'plus2222222222222222'
         else:
             print("translateDist")
             start_time = time.time()
@@ -112,20 +105,20 @@ class BaseControl():
             deg = deg.data
         except AttributeError:
             pass
-        rospy.sleep(0.5)
+        rospy.sleep(0.2)
         if deg >= 0.0:
             self.target_deg = self.current_deg + deg
-            if self.target_deg >= 180:
-                self.remain_deg = self.target_deg - 180
-                self.sub_target_deg = self.remain_deg -180
+            if self.target_deg >= 360:
+                self.remain_deg = self.target_deg - 360
+                self.sub_target_deg = self.remain_deg
             else:
                 pass
             self.twist_value.angular.z = speed
         else:
             self.target_deg = self.current_deg + deg
-            if self.target_deg <= -180:
-                self.remain_deg = self.target_deg + 180
-                self.target_deg = 180 + self.remain_deg
+            if self.target_deg < 0.0:
+                self.remain_deg = 360 + self.target_deg
+                self.sub_target_deg = self.remain_deg
             else:
                 pass
             self.twist_value.angular.z = -speed
