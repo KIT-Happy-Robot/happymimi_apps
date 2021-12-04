@@ -5,6 +5,7 @@
 # Author: Issei Iida, Yusuke Kanazawa
 # Date: 2021/10/25
 # Memo: [rotateAngle()]はOdometryを使っています
+#       最大180度まで
 #--------------------------------------------------------------
 
 import rospy
@@ -61,17 +62,18 @@ class BaseControl():
                 rospy.sleep(0.3)
                 if self.target_deg < 360 and self.current_deg >= self.target_deg:
                     break
-                elif self.target_deg >= 360 and self.current_deg <= 180 and self.current_deg >= self.sub_target_deg:
+                elif self.target_deg >= 360 and self.current_deg <= 185 and self.current_deg >= self.sub_target_deg:
                     break
                 else:
-                    self.twist_pub.publish(selt.twist_value)
+                    self.twist_pub.publish(self.twist_value)
         elif self.twist_value.angular.z < 0.0:
             print("rotateAngle")
             while not rospy.is_shutdown():
                 rospy.sleep(0.3)
                 if self.target_deg > 0.0 and self.current_deg <= self.target_deg:
                     break
-                elif self.target_deg < 0.0 and self.current_deg >= 180 and self.current_deg <= self.sub_target_deg:
+                elif self.target_deg < 0.0 and self.current_deg >= 170 and self.current_deg <= self.sub_target_deg:
+                    print 'break'
                     break
                 else:
                     self.twist_pub.publish(self.twist_value)
