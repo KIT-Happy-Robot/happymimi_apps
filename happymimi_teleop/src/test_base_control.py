@@ -59,21 +59,20 @@ class BaseControl():
         if self.twist_value.angular.z > 0.0:
             print("rotateAngle")
             while not rospy.is_shutdown():
-                rospy.sleep(0.3)
-                if self.target_deg < 360 and self.current_deg >= self.target_deg:
+                rospy.sleep(0.1)
+                if self.sub_target_deg == 0.0 and self.current_deg >= self.target_deg:
                     break
-                elif self.target_deg >= 360 and self.current_deg <= 185 and self.current_deg >= self.sub_target_deg:
+                elif self.sub_target_deg != 0.0 and (self.sub_target_deg - 1.0) < self.current_deg and (self.sub_target_deg + 2.0) > self.current_deg:
                     break
                 else:
                     self.twist_pub.publish(self.twist_value)
         elif self.twist_value.angular.z < 0.0:
             print("rotateAngle")
             while not rospy.is_shutdown():
-                rospy.sleep(0.3)
-                if self.target_deg > 0.0 and self.current_deg <= self.target_deg:
+                rospy.sleep(0.1)
+                if self.sub_target_deg == 0.0 and self.current_deg <= self.target_deg:
                     break
-                elif self.target_deg < 0.0 and self.current_deg >= 170 and self.current_deg <= self.sub_target_deg:
-                    print 'break'
+                elif self.sub_target_deg != 0.0 and (self.sub_target_deg - 1.0) < self.current_deg and (self.sub_target_deg + 2.0) > self.current_deg:
                     break
                 else:
                     self.twist_pub.publish(self.twist_value)
@@ -124,9 +123,9 @@ class BaseControl():
             else:
                 pass
             self.twist_value.angular.z = -speed
-        #print("current deg: " + str(self.current_deg))
-        #print("target deg: " + str(self.target_deg))
-        #print("sub_target deg: " + str(self.sub_target_deg))
+        print("current deg: " + str(self.current_deg))
+        print("target deg: " + str(self.target_deg))
+        print("sub_target deg: " + str(self.sub_target_deg))
         self.publishTwist()
 
 if __name__ == '__main__':
