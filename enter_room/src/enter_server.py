@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #-------------------------------------------------------------
 # Title: ドアが開いたことを検出して入室するServiceServer
@@ -12,7 +12,7 @@ import roslib
 import sys
 from sensor_msgs.msg import LaserScan
 from enter_room.srv import EnterRoom, EnterRoomResponse
-from happymimi_voice_msgs.srv import TTS
+from happymimi_msgs.srv import StrTrg
 file_path = roslib.packages.get_pkg_dir('happymimi_teleop') + '/src/'
 sys.path.insert(0, file_path)
 from base_control import BaseControl
@@ -25,7 +25,7 @@ class EnterRoomServer():
         service = rospy.Service('/enter_room_server', EnterRoom, self.execute)
         rospy.loginfo("Ready to set enter_room_server")
         # speak
-        self.tts_srv = rospy.ServiceProxy('/tts', TTS)
+        self.tts_srv = rospy.ServiceProxy('/tts', StrTrg)
         # Subscriber
         rospy.Subscriber('/scan', LaserScan, self.laserCB)
         # Module
@@ -42,7 +42,7 @@ class EnterRoomServer():
             target_dist = srv_req.distance + self.front_laser_dist
 
             self.tts_srv('Prease open the door')
-            print "Prease open the door"
+            print("Prease open the door")
             while self.front_laser_dist <= safe_dist:
                 rospy.sleep(0.1)
             self.tts_srv('Thank you')

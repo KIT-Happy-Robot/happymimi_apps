@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #-----------------------------------------------------------
 # Title: 目的地の名前と座標を設定するサービスサーバー
@@ -31,7 +31,7 @@ class NaviLocationServer():
     def searchLocationName(self, srv_req):
         if srv_req.location_name in self.location_dict:
             self.location_name = srv_req.location_name
-            print self.location_dict[self.location_name]
+            print(self.location_dict[self.location_name])
             return self.sendGoal(self.location_dict[self.location_name])
         else:
             rospy.logerr("<" + srv_req.location_name + "> doesn't exist.")

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #-----------------------------------------------------------
 # Title: 目的地の名前と座標を設定するサービスサーバー
@@ -56,7 +56,7 @@ class SetLocationServer():
             self.location_dict[name].append(self.location_pose_y)
             self.location_dict[name].append(self.location_pose_z)
             self.location_dict[name].append(self.location_pose_w)
-            print self.location_dict
+            print(self.location_dict)
             rospy.loginfo("Registerd <" + name + ">")
             return True
 
@@ -66,7 +66,7 @@ class SetLocationServer():
             map_path = roslib.packages.get_pkg_dir("happymimi_navigation")
             rospy.set_param('/location_dict', self.location_dict)
             rosparam.dump_params(param_path + '/location/' + file_name + '.yaml', '/location_dict')
-            print rosparam.get_param('/location_dict')
+            print(rosparam.get_param('/location_dict'))
             sp.Popen(['rosrun','map_server','map_saver','-f', map_path + '/maps/'+ file_name])
             rospy.loginfo("Saved as <" + file_name + ">")
             return True
