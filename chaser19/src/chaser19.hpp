@@ -74,7 +74,7 @@
 #include <time.h>
 
 //#define MOMENT_EXEL// 慣性モーメントデータ取得用
-#define RECORD       //録画用
+//#define RECORD       //録画用
 
 #define DEG2RAD(DEG) ( (M_PI) * (DEG) / 180.0 )
 #define RAD2DEG(RAD) ( 180.0  * (RAD) / (M_PI))
@@ -146,7 +146,7 @@ cv::Mat lidar_erode_image;
 cv::Scalar red(0,0,255), blue(255,0,0), green(0, 255, 0);
 
 // 録画
-cv::VideoWriter writer1("videofile.avi", CV_FOURCC_MACRO('X', 'V', 'I', 'D'), 30.0,
+cv::VideoWriter writer1("videofile.avi", cv::VideoWriter::fourcc('X', 'V', 'I', 'D'), 30.0,
                         cv::Size(kImageWidth, kImageHeight), true);
 
 enum  Robot_Condition { SAFE = 0, DANGER = 119 };

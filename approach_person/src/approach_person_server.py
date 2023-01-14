@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import rospy
 import rosparam
@@ -33,7 +33,7 @@ class ApproachPersonServer():
         human_loc = rospy.get_param('/tmp_human_location')
         if human_name in human_loc:
             self.human_coord = human_loc[human_name]
-            print self.human_coord
+            print (self.human_coord)
             return True
         else:
             rospy.logerr("<" + human_name + "> doesn't exist.")

@@ -337,7 +337,7 @@ int Robot::findLegs(cv::Mat input_image, Object *object,
 
     // 輪郭の探索
     findContours(input_image, contours, hierarchy,
-                 CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, cv::Point(0 , 0) );
+                 RETR_TREE, CHAIN_APPROX_SIMPLE, cv::Point(0 , 0) );
 
     int object_num = 0; // 脚候補の数
     for(unsigned int cn=0; cn<contours.size(); cn++) {
@@ -618,7 +618,7 @@ int Robot::findLegs(cv::Mat input_image, Object *object,
         int pixel_value = static_cast<int>(substraction_world_pose_image_ptr[world_y]);
         if(pixel_value == 0) {
             // 動体であればlidar_imageに描写する,ver2
-            cv::circle(lidar_image, cv::Point(object[i].image_pos_.x, object[i].image_pos_.y), 3, cv::Scalar(200,200,0), -1, CV_AA);
+            cv::circle(lidar_image, cv::Point(object[i].image_pos_.x, object[i].image_pos_.y), 3, cv::Scalar(200,200,0), -1, cv::LINE_AA);
             // 動体の座標,ver2
             object[i].dynamic_image_pos_ = cv::Point(object[i].image_pos_.x, object[i].image_pos_.y);
             object[i].judge_dynamic_ = true;
@@ -1011,7 +1011,7 @@ void Robot::welcomeMessage()
     std::cout << "Follow me program by demura lab.,KIT " << std::endl;
     std::cout << "kFollowMaxDistance =" << kFollowMaxDistance << std::endl;
     std::cout << "kFollowMinDistance =" << kFollowMinDistance << std::endl;
-    std::cout << "kFollowAngle        =" << kFollowAngle << std::endl;
+    std::cout << "kFollowAngle       =" << kFollowAngle << std::endl;
 }
 
 /**
@@ -1286,7 +1286,8 @@ void Robot::followHuman(cv::Mat input_image, bool movable = true)
 *@details LIDAR画像に縮小処理をし、ノイズ除去を行う
 */
 void Robot::prepWindow()
-{
+{ 
+
     cv::Mat lidar_bin_image;
 
     // グレースケールに変換する
@@ -1294,8 +1295,10 @@ void Robot::prepWindow()
 
     lidar_bin_image = ~lidar_bin_image; // 反転
     cv::erode(lidar_bin_image, lidar_erode_image, cv::Mat(), cv::Point(-1,-1), 1); // 縮小処理,ノイズ除去
+    
     cv::Mat lidar_color_image;
-    cv::cvtColor(lidar_gray_image, lidar_color_image, CV_GRAY2BGR); // カラー画像に変換
+
+    cv::cvtColor(lidar_gray_image, lidar_color_image, cv::COLOR_GRAY2BGR); // カラー画像に変換
 
     lidar_image = lidar_color_image;
 
@@ -1306,7 +1309,7 @@ void Robot::prepWindow()
 */
 void Robot::showWindow()
 {
-    cv::namedWindow( "Map", CV_WINDOW_AUTOSIZE );
+    cv::namedWindow( "Map", cv::WINDOW_AUTOSIZE );
     cv::Mat dst_img = ~lidar_image;
 
     cv::imshow("Map",dst_img); // 画像表示
@@ -1396,7 +1399,7 @@ int main(int argc, char* argv[])
     Robot robot;
 
     robot.welcomeMessage(); // パラメータを表示する
-
+    
     robot.init(); // パブリッシャーとサブスクライバーの宣言
 
     ros::Rate loop_rate(33); // 33Hz(約30.3ms)のタイマー
@@ -1413,7 +1416,7 @@ int main(int argc, char* argv[])
         struct timeval start, end;
         gettimeofday(&start, NULL);
 
-        robot.prepWindow(); // LIDAR画像の処理
+        robot.prepWindow(); // LIDAR画像の処理 
 
         if (loop++ < 10) { // LIDARからのデータを読み込むまで時間を稼ぐ
             loop_rate.sleep(); // タイマーからループの処理時間を引いた時間だけ待つ

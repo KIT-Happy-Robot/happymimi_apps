@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #--------------------------------------------------------------
 # Title: 足回り制御を行うPythonモジュール

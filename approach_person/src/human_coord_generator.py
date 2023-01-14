@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import sys
 import rospy
@@ -100,7 +100,7 @@ class HumanCoordGeneratorSrv():
                     # self.change_dict_key(human_dict, frame_id, new_id)
                     self.change_dict_key(human_dict, frame_id)
                 self.human_coord_dict.update(human_dict)
-                print self.human_coord_dict
+                print (self.human_coord_dict)
                 self.h_dict_count += 1
             else:
                 pass
@@ -109,12 +109,12 @@ class HumanCoordGeneratorSrv():
         # while len(self.human_coord_dict) < 1:
         # for i in range(2):
         for i in range(3):
-            print "count num: " + str(self.h_dict_count)
+            print ("count num: " + str(self.h_dict_count))
             # if i != 0:
                 # self.bc.rotateAngle(-45, 0.3)
             # 人がいるか
             self.dist_data = self.ml_srv(target_name = "person")
-            print self.dist_data
+            print (self.dist_data)
             list_len  = len(list(self.dist_data.points))
             # print list_len
             if list_len < 1:
@@ -128,7 +128,7 @@ class HumanCoordGeneratorSrv():
                 self.bc.rotateAngle(-50, 0.3)
                 rospy.sleep(1.0)
         self.saveDict()
-        print self.human_coord_dict
+        print (self.human_coord_dict)
         return SimpleTrgResponse(result = True)
 
 
