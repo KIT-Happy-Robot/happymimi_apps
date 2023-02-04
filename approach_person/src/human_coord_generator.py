@@ -85,8 +85,11 @@ class HumanCoordGeneratorSrv():
 
     # def change_dict_key(self, d, old_key, new_key):
     def change_dict_key(self, d, old_key):
+        self.human_coord_dict.clear()
         new_key = "human_" + str(len(self.human_coord_dict) + 1)
+        print(new_key)
         d[new_key] = d[old_key]
+        print(old_key)
         del d[old_key]
 
     def createDict(self, list_len):
@@ -117,16 +120,16 @@ class HumanCoordGeneratorSrv():
             print (self.dist_data)
             list_len  = len(list(self.dist_data.points))
             # print list_len
-            if list_len < 1:
+            if list_len == 0 :
                 # self.bc.rotateAngle(-75)
                 # rospy.sleep(2.0)
                 pass
             else:
                 self.createDict(list_len)
             # 台車の回転
-            if i < 2:
-                self.bc.rotateAngle(-50, 0.3)
-                rospy.sleep(1.0)
+            #if i < 2:
+            #    self.bc.rotateAngle(-50, 0.3)
+            #    rospy.sleep(1.0)
         self.saveDict()
         print (self.human_coord_dict)
         return SimpleTrgResponse(result = True)

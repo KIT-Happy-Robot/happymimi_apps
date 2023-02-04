@@ -400,8 +400,8 @@ int Robot::findLegs(cv::Mat input_image, Object *object,
         else intensity = 0;
 
         // 反射強度は距離の関数なので変更の必要あり
-        //double intensity_min = 120, intensity_max = 125;  // チノパン
-        double intensity_min = 80, intensity_max = 160;   // 黒室内
+        double intensity_min = 120, intensity_max = 125;  // チノパン
+        //double intensity_min = 80, intensity_max = 160;   // 黒室内
         //double intensity_min = 140, intensity_max = 300;   // 茶色、家
         //human.intensity_min_ = 90; human.intensity_max_ = 159; // コーデロイ
 
