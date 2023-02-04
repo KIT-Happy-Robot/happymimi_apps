@@ -1,0 +1,7 @@
+# req
+string left_right
+float64 rotate_speed
+---
+# res
+float64 distance
+bool result

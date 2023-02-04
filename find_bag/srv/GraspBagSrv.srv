@@ -1,0 +1,5 @@
+# req
+string left_right
+---
+# res
+bool result
