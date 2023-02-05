@@ -11,8 +11,9 @@
 import rospy
 import time
 import math
-import tf
 import numpy
+import matplotlib.pyplot as plot 
+import tf
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Twist
 from std_msgs.msg import Float64
@@ -28,6 +29,7 @@ class BaseControl():
         self.twist_value = Twist()
         self.target_time = 0.0
         self.rate = rospy.Rate(1.0)
+        self.anglar_vel = 0.0  # 角速度
         self.quaternion = (0.0, 0.0, 0.0, 0.0)   # クォータニオン (x, y, z, w)
         self.current_euler = []   # オイラー角 [roll: x, Pitch: Y, Yaw: z]
         self.current_deg = 0.0   # 現在の角度（度数法）
@@ -41,6 +43,7 @@ class BaseControl():
         rospy.Subscriber('/teleop/rotate', Float64, self.rotateAngle)
 
     def odomCB(self, receive_msg):
+        self.anglar_vel = receive_msg.twist.twist.angular.z
         self.quaternion = (
             receive_msg.pose.pose.orientation.x,
             receive_msg.pose.pose.orientation.y,
@@ -71,44 +74,52 @@ class BaseControl():
         print("Finish translateDist")
 
     def publishAnglarZ(self):
-        vel_max = 0.3
-        ku = 0.06  # 限界感度
-        kp = ku/2
+        time_list = []
+        deg_list = []
+        vel_max = 0.5
+        kp = 0.06
+        ki = 0.0
+        kd = 0.0
         print("rotateAngle")
-        while int(self.judg_deg) != int(self.current_deg):
+        start_time = time.time()
+        while round(self.judg_deg, 1) != round(self.current_deg, 1):
+            real_time = time.time() - start_time
+            # 0度をまたがないとき
             if self.sub_target_deg == 0.0:
                 self.judg_deg = self.target_deg
-                vel_z = kp*(self.target_deg - self.current_deg)
+                vel_z = kp*(self.target_deg - self.current_deg) + ki*(self.target_deg - self.current_deg)*real_time - kd*self.anglar_vel
             # 0度を時計回りにまたぐとき
             elif self.sub_target_deg > 180:
                 self.judg_deg = self.sub_target_deg
                 if abs(360 - self.sub_target_deg) < 10.0:
-                    vel_max = 0.2
+                    vel_max = 0.3
                 if self.current_deg < 180:
                     vel_z = -vel_max
                 else:
-                    vel_z = kp*(self.sub_target_deg - self.current_deg)
+                    vel_z = kp*(self.sub_target_deg - self.current_deg) + ki*(self.sub_target_deg - self.current_deg)*real_time - kd*self.anglar_vel
             # 0度を反時計回りにまたぐとき
             else:
                 self.judg_deg = self.sub_target_deg
                 if abs(0 - self.sub_target_deg) < 10.0:
-                    vel_max = 0.2
+                    vel_max = 0.3
                 if self.current_deg > 180:
                     vel_z = vel_max
                 else:
-                    vel_z = kp*(self.sub_target_deg - self.current_deg)
+                    vel_z = kp*(self.sub_target_deg - self.current_deg) + ki*(self.sub_target_deg - self.current_deg)*real_time - kd*self.anglar_vel
 
             if abs(vel_z) > vel_max:
                 vel_z = numpy.sign(vel_z)*vel_max
             self.twist_value.angular.z = vel_z
             self.twist_pub.publish(self.twist_value)
+            time_list.append(real_time)
+            deg_list.append(self.current_deg)
             rospy.sleep(0.1)
-
+        #print(round(self.judg_deg, 1), round(self.current_deg, 1))
         self.twist_value.angular.z = 0.0
         self.twist_pub.publish(self.twist_value)
         print("Finish rotateAngle")
-        #print("final deg: " + str(self.current_deg))
-
+        return time_list, deg_list
+        
     def translateDist(self, dist, speed = 0.2):
         try:
             dist = dist.data
@@ -144,11 +155,20 @@ class BaseControl():
         print("current deg: " + str(self.current_deg))
         print("target deg: " + str(self.target_deg))
         print("sub_target deg: " + str(self.sub_target_deg))
-        self.publishAnglarZ()
+        return self.publishAnglarZ()
+
+    # ゲイン調整のときに使う
+    def odomPlot(self, deg):
+        time_x = []
+        deg_y = []
+        time_x, deg_y = self.rotateAngle(deg)
+        plot.plot(time_x, deg_y)
+        plot.show()
+
 
 if __name__ == '__main__':
     rospy.init_node('pid_base_control')
     base_control = BaseControl()
-    base_control.rotateAngle(10)
-    #base_control.debag()
-    #rospy.spin()
+    base_control.debag()
+    rospy.spin()
+    #base_control.odomPlot(-30)  # ゲイン調整用
