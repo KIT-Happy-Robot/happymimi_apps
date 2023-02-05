@@ -73,16 +73,16 @@ class BaseControl():
         self.twist_pub.publish(self.twist_value)
         print("Finish translateDist")
 
-    def publishAnglarZ(self):
+    def publishAnglarZ(self, max_speed):
         time_list = []
         deg_list = []
-        vel_max = 0.5
-        kp = 0.06
+        vel_max = max_speed
+        kp = 0.14
         ki = 0.0
-        kd = 0.0
+        kd = 0.16
         print("rotateAngle")
         start_time = time.time()
-        while round(self.judg_deg, 1) != round(self.current_deg, 1):
+        while int(self.judg_deg) != int(self.current_deg):
             real_time = time.time() - start_time
             # 0度をまたがないとき
             if self.sub_target_deg == 0.0:
@@ -92,7 +92,7 @@ class BaseControl():
             elif self.sub_target_deg > 180:
                 self.judg_deg = self.sub_target_deg
                 if abs(360 - self.sub_target_deg) < 10.0:
-                    vel_max = 0.3
+                    vel_max = 0.2
                 if self.current_deg < 180:
                     vel_z = -vel_max
                 else:
@@ -101,16 +101,16 @@ class BaseControl():
             else:
                 self.judg_deg = self.sub_target_deg
                 if abs(0 - self.sub_target_deg) < 10.0:
-                    vel_max = 0.3
+                    vel_max = 0.2
                 if self.current_deg > 180:
                     vel_z = vel_max
                 else:
                     vel_z = kp*(self.sub_target_deg - self.current_deg) + ki*(self.sub_target_deg - self.current_deg)*real_time - kd*self.anglar_vel
-
             if abs(vel_z) > vel_max:
                 vel_z = numpy.sign(vel_z)*vel_max
             self.twist_value.angular.z = vel_z
             self.twist_pub.publish(self.twist_value)
+            # グラフプロット用リスト
             time_list.append(real_time)
             deg_list.append(self.current_deg)
             rospy.sleep(0.1)
@@ -130,7 +130,7 @@ class BaseControl():
         self.twist_value.linear.x = dist/abs(dist)*speed
         self.publishLinerX()
 
-    def rotateAngle(self, deg, speed = 0.2):
+    def rotateAngle(self, deg, speed = 0.5):
         try:
             deg = deg.data
         except AttributeError:
@@ -143,7 +143,6 @@ class BaseControl():
                 self.sub_target_deg = self.remain_deg
             else:
                 pass
-            self.twist_value.angular.z = speed
         else:
             self.target_deg = self.current_deg + deg
             if self.target_deg < 0.0:
@@ -151,17 +150,16 @@ class BaseControl():
                 self.sub_target_deg = self.remain_deg
             else:
                 pass
-            self.twist_value.angular.z = -speed
         print("current deg: " + str(self.current_deg))
         print("target deg: " + str(self.target_deg))
         print("sub_target deg: " + str(self.sub_target_deg))
-        return self.publishAnglarZ()
+        return self.publishAnglarZ(speed)
 
     # ゲイン調整のときに使う
-    def odomPlot(self, deg):
+    def odomPlot(self, deg, speed = 0.5):
         time_x = []
         deg_y = []
-        time_x, deg_y = self.rotateAngle(deg)
+        time_x, deg_y = self.rotateAngle(deg, speed)
         plot.plot(time_x, deg_y)
         plot.show()
 
@@ -169,6 +167,6 @@ class BaseControl():
 if __name__ == '__main__':
     rospy.init_node('pid_base_control')
     base_control = BaseControl()
-    base_control.debag()
-    rospy.spin()
-    #base_control.odomPlot(-30)  # ゲイン調整用
+    #base_control.debag()
+    #rospy.spin()
+    base_control.odomPlot(2)  # ゲイン調整用
