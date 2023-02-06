@@ -69,10 +69,10 @@ class FindBag():
 
     def centerSpread(self, spread_value, left_right):
         self.center_range = self.laser_list
-        if left_right == 'left':
+        if left_right == 'right':
             del self.center_range[0 : self.center_index]  # 右半分削除
             del self.center_range[-self.center_index+1+spread_value : ]  # リストの先頭から1つずつ追加
-        elif left_right == 'right':
+        elif left_right == 'left':
             del self.center_range[self.center_index+1 : self.index_sum]  # 左半分削除
             del self.center_range[ : -1-spread_value]  # リストの末尾から1つずつ追加
             self.center_range = list(reversed(self.center_range))
