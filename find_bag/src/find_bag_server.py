@@ -3,6 +3,7 @@
 
 import rospy
 import math
+import matplotlib.pyplot as plot
 import os
 import sys
 import roslib
@@ -82,6 +83,8 @@ class FindBag():
     def centerIndex(self, left_right):
         bag_range = []
         bag_dist = []
+        scan_index_list = []
+        scan_data_list = []
         bag_average = 'NULL'
         self.laserIndex()
         count = 0
@@ -98,9 +101,11 @@ class FindBag():
                 break
             else:
                 pass
+            scan_index_list.append(count)
+            scan_data_list.append(self.laser_list[count])
             print(bag_range)
             count += 1
-        return bag_range[self.roundHalfUp(len(bag_range)/2 - 1)]
+        return bag_range[self.roundHalfUp(len(bag_range)/2 - 1)]#, scan_index_list, scan_data_list
 
     def indexToAngle(self, left_right):
         self.laserCheck()
@@ -137,7 +142,18 @@ class FindBag():
         self.bagGrasp(srv_req.left_right, srv_req.data)
         return GraspBagSrvResponse(result = True)
 
+    def scanPlot(self, left_right):
+        gavege = 'NULL'
+        scan_index_list = []
+        scan_data_list = []
+        rospy.sleep(0.5)
+        gavege, scan_index_list, scan_data_list = self.centerIndex(left_right)
+        plot.plot(scan_index_list, scan_data_list)
+        plot.show()
+
+
 if __name__ == '__main__':
     rospy.init_node('find_bag_node')
     fb = FindBag()
     rospy.spin()
+    #fb.scanPlot('left')
