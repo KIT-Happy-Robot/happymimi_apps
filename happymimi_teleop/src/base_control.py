@@ -169,4 +169,4 @@ if __name__ == '__main__':
     base_control = BaseControl()
     #base_control.debag()
     #rospy.spin()
-    base_control.odomPlot(-40, 0.5)  # ゲイン調整用
+    base_control.odomPlot(30, 0.5)  # ゲイン調整用

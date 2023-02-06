@@ -109,7 +109,7 @@ class FindBag():
     def bagFocus(self, left_right, rotate_speed=0.2):
         move_angle = self.indexToAngle(left_right)
         print(move_angle)
-        self.base_control.rotateAngle(move_angle, rotate_speed)  # 回転の調整はここ
+        self.base_control.rotateAngle(move_angle*0.9, rotate_speed)  # 回転の調整はここ
         while self.rotate_value != 0.0:
             rospy.loginfo('Rotating ...')
             rospy.sleep(0.5)
