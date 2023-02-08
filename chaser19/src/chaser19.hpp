@@ -101,9 +101,9 @@ const double kFollowDistance    = 0.3; // 人からこの距離で追従する
 const double kFollowMinDistance = 0.3; // 追従距離の最小
 const double kFollowAngle       = 180; // 探す範囲は正面のこの角度[deg]
 const double kGainLinear        = 0.4;  // P制御比例ゲイン（並進0.4）
-const double kKp                = 0.20; // PD制御ゲイン(回転0.10)
-const double kKd                = 5.25; //
-const double kLinearMaxSpeed    = 0.6;  // 並進の最大速度[m/s]
+const double kKp                = 0.3; // PD制御ゲイン(回転0.20) 0.20
+const double kKd                = 6.0; // 5.25
+const double kLinearMaxSpeed    = 0.7;  // 並進の最大速度[m/s]
 const double kTurnMaxSpeed      = 0.5;  // 角速度 最大3.14[rad/s](1.0)
 //yamada
 const double kDefaultDetectPosX	= 250;  // 検出範囲(円)のxの初期の中心座標,[px]

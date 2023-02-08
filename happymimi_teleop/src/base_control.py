@@ -76,43 +76,60 @@ class BaseControl():
     def publishAnglarZ(self, max_speed):
         time_list = []
         deg_list = []
+        integral_value = 0.0
         vel_max = max_speed
-        kp = 0.16
-        ki = 0.13
-        kd = 7.0
+        kp = 0.11
+        ki = 0.015
+        kd = 2.0
         print("rotateAngle")
         start_time = time.time()
-        while round(self.judg_deg, 1) != round(self.current_deg, 1) and not rospy.is_shutdown():
-            real_time = time.time() - start_time
+        start_plot = time.time()
+        while int(self.judg_deg) != int(self.current_deg) and not rospy.is_shutdown():
+            plot_time = time.time() - start_plot
+            delta_time = time.time() - start_time
             # 0度をまたがないとき
             if self.sub_target_deg == 0.0:
                 self.judg_deg = self.target_deg
-                vel_z = kp*(self.target_deg - self.current_deg) + ki*(self.target_deg - self.current_deg)*real_time - kd*self.anglar_vel
+                integral_value += delta_time*(self.target_deg - self.current_deg)
+                vel_z = kp*(self.target_deg - self.current_deg) + ki*integral_value - kd*self.anglar_vel
+                if self.target_deg < 10 and self.current_deg > 200:
+                    vel_z = 0.3
+                    print("wow")
+                elif self.target_deg > 350 and self.current_deg < 100:
+                    vel_z = -0.3
+                    print('japan')
+                else:
+                    pass
             # 0度を時計回りにまたぐとき
             elif self.sub_target_deg > 180:
                 self.judg_deg = self.sub_target_deg
+                integral_value += delta_time*(self.sub_target_deg - self.current_deg)
                 if abs(360 - self.sub_target_deg) < 10.0:
                     vel_max = 0.2
                 if self.current_deg < 180:
                     vel_z = -vel_max
                 else:
-                    vel_z = kp*(self.sub_target_deg - self.current_deg) + ki*(self.sub_target_deg - self.current_deg)*real_time - kd*self.anglar_vel
+                    vel_z = kp*(self.sub_target_deg - self.current_deg) + ki*integral_value - kd*self.anglar_vel
             # 0度を反時計回りにまたぐとき
             else:
                 self.judg_deg = self.sub_target_deg
+                integral_value += delta_time*(self.sub_target_deg - self.current_deg)
                 if abs(0 - self.sub_target_deg) < 10.0:
                     vel_max = 0.2
                 if self.current_deg > 180:
                     vel_z = vel_max
                 else:
-                    vel_z = kp*(self.sub_target_deg - self.current_deg) + ki*(self.sub_target_deg - self.current_deg)*real_time - kd*self.anglar_vel
+                    vel_z = kp*(self.sub_target_deg - self.current_deg) + ki*integral_value - kd*self.anglar_vel
+            if plot_time > 10:
+                break
             if abs(vel_z) > vel_max:
                 vel_z = numpy.sign(vel_z)*vel_max
             self.twist_value.angular.z = vel_z
             self.twist_pub.publish(self.twist_value)
             # グラフプロット用リスト
-            time_list.append(real_time)
+            time_list.append(plot_time)
             deg_list.append(self.current_deg)
+            start_time = time.time()
             rospy.sleep(0.1)
         #print(round(self.judg_deg, 1), round(self.current_deg, 1))
         self.twist_value.angular.z = 0.0
@@ -167,6 +184,6 @@ class BaseControl():
 if __name__ == '__main__':
     rospy.init_node('pid_base_control')
     base_control = BaseControl()
-    #base_control.debag()
-    #rospy.spin()
-    base_control.odomPlot(30, 0.5)  # ゲイン調整用
+    base_control.debag()
+    rospy.spin()
+    #base_control.odomPlot(10, 1.0)  # ゲイン調整用
