@@ -1,5 +1,6 @@
 # req
 string left_right
+#float64 bag_width
 float64 rotate_speed
 ---
 # res
