@@ -152,10 +152,12 @@ class FindBag():
         scan_data_list = []
         rospy.sleep(0.5)
         #gavege, scan_index_list, scan_data_list = self.centerIndex(left_right)
-        scan_index = self.laser_list
-        for index in scan_index:
+        scan_data = self.laser_list
+        index = 0
+        for data in scan_data:
             scan_index_list.append(index)
-            scan_data_list.append(self.laser_list[index])
+            scan_data_list.append(data)
+            index += 1
         plot.plot(scan_index_list, scan_data_list)
         plot.show()
 
@@ -163,5 +165,5 @@ class FindBag():
 if __name__ == '__main__':
     rospy.init_node('find_bag_node')
     fb = FindBag()
-    rospy.spin()
-    #fb.scanPlot('left')
+    #rospy.spin()
+    fb.scanPlot('left')
