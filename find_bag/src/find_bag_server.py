@@ -105,12 +105,16 @@ class FindBag():
             scan_data_list.append(self.laser_list[count])
             print(bag_range)
             count += 1
-        return bag_range[self.roundHalfUp(len(bag_range)/2 - 1)]#, scan_index_list, scan_data_list
+        return bag_range[self.roundHalfUp(len(bag_range)/2 - 1)]#, bag_range#, scan_index_list, scan_data_list
+
+    #def bagRangeCheck(self, bag_range, bag_width):
+        
 
     def indexToAngle(self, left_right):
         self.laserCheck()
-        angle_to_bag = self.centerIndex(left_right)
+        angle_to_bag = self.centerIndex(left_right) # bag_range追加予定
         return angle_to_bag*self.step_angle if left_right == 'left' else -1*angle_to_bag*self.step_angle
+
     def bagFocus(self, left_right, rotate_speed=0.2):
         move_angle = self.indexToAngle(left_right)
         print(move_angle)
@@ -128,7 +132,7 @@ class FindBag():
         print(coordinate)
         self.manipulation(coordinate)
         rospy.sleep(0.5)
-        self.base_control.translateDist(self.laser_list[self.center_index] - 0.15)
+        self.base_control.translateDist(self.laser_list[self.center_index] - 0.20)
         self.eef.publish(True)
         rospy.sleep(0.5)
         self.arm_pose('carry')
@@ -147,7 +151,11 @@ class FindBag():
         scan_index_list = []
         scan_data_list = []
         rospy.sleep(0.5)
-        gavege, scan_index_list, scan_data_list = self.centerIndex(left_right)
+        #gavege, scan_index_list, scan_data_list = self.centerIndex(left_right)
+        scan_index = self.laser_list
+        for index in scan_index:
+            scan_index_list.append(index)
+            scan_data_list.append(self.laser_list[index])
         plot.plot(scan_index_list, scan_data_list)
         plot.show()
 
