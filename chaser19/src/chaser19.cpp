@@ -1234,7 +1234,7 @@ void Robot::followHuman(cv::Mat input_image, bool movable = true)
     // 5度以内のときは回転しない
     if ((human.angle_ == 999) || (human.last_angle_ == 999)) {
         setAngularSpeed(0);
-    } else if (fabs(human.angle_) > DEG2RAD(5.0)) {
+    } else if (fabs(human.angle_) > DEG2RAD(4.5)) {
         double tmp_speed = getAngularSpeed();
         tmp_speed += -kKp * human.angle_ - kKd * (human.angle_ - human.last_angle_); // PD制御
         setAngularSpeed(tmp_speed);
