@@ -111,7 +111,7 @@ class HumanCoordGeneratorSrv():
     def execute(self, srv_req):
         # while len(self.human_coord_dict) < 1:
         # for i in range(2):
-        for i in range(3):
+        for i in range(1):
             print ("count num: " + str(self.h_dict_count))
             # if i != 0:
                 # self.bc.rotateAngle(-45, 0.3)
