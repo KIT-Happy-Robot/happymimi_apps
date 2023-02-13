@@ -60,6 +60,9 @@ class BaseControl():
             pass
         #print(self.current_deg)
 
+    def roundDown(self, value, down_num=1):
+        return math.floor(value * (10**down_num)) / (10**down_num)
+
     def publishLinerX(self):
         print("translateDist")
         start_time = time.time()
@@ -73,54 +76,70 @@ class BaseControl():
         self.twist_pub.publish(self.twist_value)
         print("Finish translateDist")
 
-    def publishAnglarZ(self, max_speed):
+    def publishAnglarZ(self, max_speed, time_out):
+        over_flg = False
         time_list = []
         deg_list = []
         integral_value = 0.0
         vel_max = max_speed
         kp = 0.11
         ki = 0.015
-        kd = 2.0
+        kd = 0.0
         print("rotateAngle")
         start_time = time.time()
         start_plot = time.time()
-        while int(self.judg_deg) != int(self.current_deg) and not rospy.is_shutdown():
+        while self.roundDown(self.judg_deg, 1) != self.roundDown(self.current_deg, 1) and not rospy.is_shutdown():
             plot_time = time.time() - start_plot
             delta_time = time.time() - start_time
             # 0度をまたがないとき
             if self.sub_target_deg == 0.0:
                 self.judg_deg = self.target_deg
-                integral_value += delta_time*(self.target_deg - self.current_deg)
-                vel_z = kp*(self.target_deg - self.current_deg) + ki*integral_value - kd*self.anglar_vel
-                if self.target_deg < 10 and self.current_deg > 200:
-                    vel_z = 0.3
-                    print("wow")
-                elif self.target_deg > 350 and self.current_deg < 100:
-                    vel_z = -0.3
-                    print('japan')
+                if not over_flg and self.target_deg < 20 and self.current_deg > 260:
+                    over_flg = True
+                    vel_z = 0.1
+                    integral_value = 0.0
+                elif not over_flg and self.target_deg > 340 and self.current_deg < 100:
+                    over_flg = True
+                    vel_z = -0.1
+                    integral_value = 0.0
+                elif over_flg and self.target_deg < 20 and self.current_deg < 20:
+                    over_flg = False
+                elif over_flg and self.target_deg > 340 and self.current_deg > 340:
+                    over_flg = False
+                else:
+                    pass
+                if not over_flg:
+                    integral_value += delta_time*(self.target_deg - self.current_deg)
+                    vel_z = kp*(self.target_deg - self.current_deg) + ki*integral_value - kd*self.anglar_vel
                 else:
                     pass
             # 0度を時計回りにまたぐとき
             elif self.sub_target_deg > 180:
                 self.judg_deg = self.sub_target_deg
-                integral_value += delta_time*(self.sub_target_deg - self.current_deg)
-                if abs(360 - self.sub_target_deg) < 10.0:
+                # 終点が0度通過直後(10度以内)かつフィードバック値が20度未満のとき
+                if self.current_deg > 180:
+                    over_flg = True
+                if abs(360 - self.sub_target_deg) < 10.0 and 20 - self.current_deg > 0:
                     vel_max = 0.2
-                if self.current_deg < 180:
+                elif self.current_deg < 180 and not over_flg:  # 0度より左側のとき
                     vel_z = -vel_max
                 else:
+                    integral_value += delta_time*(self.sub_target_deg - self.current_deg)
                     vel_z = kp*(self.sub_target_deg - self.current_deg) + ki*integral_value - kd*self.anglar_vel
             # 0度を反時計回りにまたぐとき
             else:
                 self.judg_deg = self.sub_target_deg
-                integral_value += delta_time*(self.sub_target_deg - self.current_deg)
-                if abs(0 - self.sub_target_deg) < 10.0:
+                # 終点が0度通過直後のときかつフィードバック値が340度以上のとき
+                if self.current_deg < 180:
+                    over_flg = True
+                if abs(0 - self.sub_target_deg) < 10.0 and 360 - self.current_deg < 20:
                     vel_max = 0.2
-                if self.current_deg > 180:
+                elif self.current_deg > 180 and not over_flg:  # 0度より右側のとき
                     vel_z = vel_max
                 else:
+                    integral_value += delta_time*(self.sub_target_deg - self.current_deg)
                     vel_z = kp*(self.sub_target_deg - self.current_deg) + ki*integral_value - kd*self.anglar_vel
-            if plot_time > 10:
+            if plot_time > time_out:
                 break
             if abs(vel_z) > vel_max:
                 vel_z = numpy.sign(vel_z)*vel_max
@@ -134,6 +153,7 @@ class BaseControl():
         #print(round(self.judg_deg, 1), round(self.current_deg, 1))
         self.twist_value.angular.z = 0.0
         self.twist_pub.publish(self.twist_value)
+        self.sub_target_deg = 0.0
         print("Finish rotateAngle")
         return time_list, deg_list
         
@@ -147,7 +167,7 @@ class BaseControl():
         self.twist_value.linear.x = dist/abs(dist)*speed
         self.publishLinerX()
 
-    def rotateAngle(self, deg, speed = 0.5):
+    def rotateAngle(self, deg, speed=0.5, time_out=10):
         try:
             deg = deg.data
         except AttributeError:
@@ -167,10 +187,13 @@ class BaseControl():
                 self.sub_target_deg = self.remain_deg
             else:
                 pass
-        print("current deg: " + str(self.current_deg))
-        print("target deg: " + str(self.target_deg))
-        print("sub_target deg: " + str(self.sub_target_deg))
-        return self.publishAnglarZ(speed)
+        self.current_deg = self.roundDown(self.current_deg, 1)
+        self.target_deg = self.roundDown(self.target_deg, 1)
+        self.sub_target_deg = self.roundDown(self.sub_target_deg, 1)
+        print(f"current deg: {self.current_deg}")
+        print(f"target deg: {self.target_deg}")
+        print(f"sub_target deg: {self.sub_target_deg}")
+        return self.publishAnglarZ(speed, time_out)
 
     # ゲイン調整のときに使う
     def odomPlot(self, deg, speed = 0.5):
@@ -184,6 +207,6 @@ class BaseControl():
 if __name__ == '__main__':
     rospy.init_node('pid_base_control')
     base_control = BaseControl()
-    base_control.debag()
-    rospy.spin()
-    #base_control.odomPlot(10, 1.0)  # ゲイン調整用
+    #base_control.debag()
+    #rospy.spin()
+    base_control.odomPlot(66, 1.0)  # ゲイン調整用
