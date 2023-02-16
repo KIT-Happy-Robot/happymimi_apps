@@ -66,6 +66,7 @@ class HumanCoordGeneratorSrv():
         self.bc = BaseControl()
         self.human_coord_dict = {}
         self.h_dict_count = 0
+        self.i = 0
 
     def saveDict(self):
         param_path = roslib.packages.get_pkg_dir("happymimi_params")
@@ -86,7 +87,8 @@ class HumanCoordGeneratorSrv():
     # def change_dict_key(self, d, old_key, new_key):
     def change_dict_key(self, d, old_key):
         self.human_coord_dict.clear()
-        new_key = "human_" + str(len(self.human_coord_dict) + 1)
+        #new_key = "human_" + str(len(self.human_coord_dict) + 1)
+        new_key = "human_" + str(self.i)
         print(new_key)
         d[new_key] = d[old_key]
         print(old_key)
@@ -107,6 +109,7 @@ class HumanCoordGeneratorSrv():
                 self.h_dict_count += 1
             else:
                 pass
+        self.i += 1
 
     def execute(self, srv_req):
         # while len(self.human_coord_dict) < 1:
@@ -117,7 +120,7 @@ class HumanCoordGeneratorSrv():
                 # self.bc.rotateAngle(-45, 0.3)
             # 人がいるか
             self.dist_data = self.ml_srv(target_name = "person")
-            print (self.dist_data)
+            print(self.dist_data)
             list_len  = len(list(self.dist_data.points))
             # print list_len
             if list_len == 0 :

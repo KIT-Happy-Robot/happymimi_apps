@@ -46,7 +46,6 @@ class FindBag():
         
     def laserCB(self, receive_msg):
         self.laser_list = list(receive_msg.ranges)
-        self.laser_list.reverse()
 
     def velCB(self, receive_msg):
         self.rotate_value = receive_msg.angular.z
@@ -97,7 +96,7 @@ class FindBag():
         return laser_data
     
     def bagRangeFind(self, left_right, sensing_degree):
-        dispersion_param = 0.01
+        dispersion_param = 0.005
         laser_average = 'NULL'
         laser_deviation = 0
         laser_dispersion = 0
@@ -173,40 +172,48 @@ class FindBag():
         elif left_right == 'all':
             self.bag_center = range_dict['all_bag_range'][self.roundHalfUp(len(range_dict['all_bag_range'])/2 - 1)]
             angle_to_bag = self.center_index - self.bag_center
+            print(angle_to_bag)
         else:
             pass
         return angle_to_bag*self.step_angle
 
-    def bagFocus(self, left_right, sensing_degree=180, rotate_speed=0.2):
+    def bagFocus(self, left_right, sensing_degree=180, rotate_speed=0.7):
         if left_right == 'left' or left_right == 'right' or left_right == 'all':
             range_dict = self.bagRangeFind(left_right, sensing_degree)
         else:
             rospy.loginfo("You are not typing correctly.")
         move_angle = self.rangeToAngle(left_right, range_dict)
         print(f'\nAngle to bag >>> {move_angle}\n')
-        self.base_control.rotateAngle(move_angle, rotate_speed)  # 回転の調整はここ
-        while self.rotate_value != 0.0:
+        self.base_control.rotateAngle(move_angle, rotate_speed, 20)  # 回転の調整はここ
+        while self.rotate_value != 0.0 and not rospy.is_shutdown():
             rospy.loginfo('Rotating ...')
             rospy.sleep(0.5)
         rospy.sleep(0.5)
         return self.laser_list[self.center_index]
 
-    def bagGrasp(self, left_right, coordinate=[0.4, 0.55]):
-        #self.arm_pose('carry')
-        #self.eef.publish(False)
-        dist_to_bag = self.bagFocus(left_right)
-        #print(coordinate)
-        #self.manipulation(coordinate)
+    def bagGrasp(self, left_right, coordinate=[0.25, 0.4]):
+        move_angle = 6
+        if left_right == 'left':
+            move_angle = -move_angle
+        else:
+            pass
+        self.arm_pose('carry')
+        self.eef.publish(False)
+        dist_to_bag = self.bagFocus(left_right, 100, 0.7)
+        print(coordinate)
+        self.manipulation(coordinate)
         rospy.sleep(1.0)
-        self.base_control.translateDist(dist_to_bag - 0.40)
+        self.base_control.translateDist(dist_to_bag - 0.30)
         rospy.sleep(1.0)
+        #self.scanPlot('all', 180)
         dist_to_bag = self.bagFocus('all')
+        self.base_control.rotateAngle(move_angle, 0.7, 20)
         rospy.sleep(0.5)
-        self.base_control.translateDist(dist_to_bag - 0.20)
+        self.base_control.translateDist(dist_to_bag - 0.05, 0.1)
         rospy.sleep(0.5)
-        #self.eef.publish(True)
+        self.eef.publish(True)
         rospy.sleep(0.5)
-        #self.arm_pose('carry')
+        self.arm_pose('carry')
         rospy.loginfo('I have a bag.')
 
     def srv_FindBag(self, srv_req):
@@ -235,14 +242,6 @@ class FindBag():
         plot.vlines(plot_data[left_right + '_bag_range'][0], 0, 4, color='red', linestyles='dotted')
         plot.vlines(plot_data[left_right + '_bag_range'][-1], 0, 4, color='red', linestyles='dotted')
         plot.vlines(self.bag_center, 0, 4, color='green', linestyles='dotted')
-        #gavege, scan_index_list, scan_data_list = self.centerIndex(left_right)
-        scan_data = self.laser_list
-        index = 0
-        for data in scan_data:
-            scan_index_list.append(index)
-            scan_data_list.append(data)
-            index += 1
-        plot.plot(scan_index_list, scan_data_list)
         plot.show()
 
 
@@ -253,6 +252,4 @@ if __name__ == '__main__':
     rospy.spin()
     #print(fb.bagFocus('all', 180))
     #fb.bagGrasp('right')
-    #fb.scanPlot('all', 180)
-    #rospy.spin()
-    fb.scanPlot('left')
+    #fb.scanPlot('right', 100)

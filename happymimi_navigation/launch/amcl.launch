@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <launch>
   <!-- Locationの設定＆マップの読み込み -->
-  <arg name="map_name" default="rcj_2022_yumeko"/>
+  <arg name="map_name" default="rcj_2022_yumeko2"/>
   <rosparam file="$(find happymimi_params)/location/$(arg map_name).yaml" command="load" ns="/location" />
   <node name="map_server" pkg="map_server" type="map_server" args="$(find happymimi_navigation)/maps/$(arg map_name).yaml" />
 
