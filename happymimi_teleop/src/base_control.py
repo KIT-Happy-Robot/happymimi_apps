@@ -64,7 +64,6 @@ class BaseControl():
         return math.floor(value * (10**down_num)) / (10**down_num)
 
     def publishLinerX(self):
-        print("translateDist")
         start_time = time.time()
         end_time = time.time() + 0.15 # 誤差をカバーする0.15
         while end_time - start_time <= self.target_time:
@@ -74,9 +73,9 @@ class BaseControl():
             rospy.sleep(0.1)
         self.twist_value.linear.x = 0.0
         self.twist_pub.publish(self.twist_value)
-        print("Finish translateDist")
+        print("========== FINISH translateDist ==========")
 
-    def publishAnglarZ(self, max_speed, time_out):
+    def publishAnglarZ(self, max_speed, precision, time_out):
         over_flg = False
         time_list = []
         deg_list = []
@@ -86,11 +85,11 @@ class BaseControl():
         self.judg_deg = 999.0
         kp = 0.11  # 0.11
         ki = 0.015  # 0.015
-        kd = 0.5
+        kd = 5.0
         print("rotateAngle")
         start_time = time.time()
         start_plot = time.time()
-        while self.roundDown(self.judg_deg, 1) != self.roundDown(self.current_deg, 1) and not rospy.is_shutdown():
+        while self.roundDown(self.judg_deg, precision) != self.roundDown(self.current_deg, precision) and not rospy.is_shutdown():
             plot_time = time.time() - start_plot
             delta_time = time.time() - start_time
             # 0度をまたがないとき
@@ -154,11 +153,13 @@ class BaseControl():
             start_time = time.time()
             rospy.sleep(0.1)
         #print(round(self.judg_deg, 1), round(self.current_deg, 1))
+        time_list.append(plot_time)
+        deg_list.append(self.current_deg)
         self.twist_value.angular.z = 0.0
         self.twist_pub.publish(self.twist_value)
         self.sub_target_deg = 0.0
         print(f"Finish deg: {self.roundDown(self.current_deg, 1)}")
-        print("Finish rotateAngle\n")
+        print("========== FINISH rotateAngle ==========\n")
         return time_list, deg_list
         
     def translateDist(self, dist, speed = 0.2):
@@ -169,9 +170,10 @@ class BaseControl():
         speed = abs(speed)
         self.target_time = abs(dist / speed)
         self.twist_value.linear.x = dist/abs(dist)*speed
+        print("\n========== START translateDist ==========")
         self.publishLinerX()
 
-    def rotateAngle(self, deg, speed=0.5, time_out=10):
+    def rotateAngle(self, deg, precision=0, speed=0.7, time_out=10):
         try:
             deg = deg.data
         except AttributeError:
@@ -191,27 +193,28 @@ class BaseControl():
                 self.sub_target_deg = self.remain_deg
             else:
                 pass
-        self.current_deg = self.roundDown(self.current_deg, 1)
-        self.target_deg = self.roundDown(self.target_deg, 1)
-        self.sub_target_deg = self.roundDown(self.sub_target_deg, 1)
+        self.current_deg = self.roundDown(self.current_deg, precision)
+        self.target_deg = self.roundDown(self.target_deg, precision)
+        self.sub_target_deg = self.roundDown(self.sub_target_deg, precision)
+        print("\n========== START rotateAngle ==========")
         print(f"current deg: {self.current_deg}")
         print(f"target deg: {self.target_deg}")
         print(f"sub_target deg: {self.sub_target_deg}")
-        return self.publishAnglarZ(speed, time_out)
+        return self.publishAnglarZ(speed, precision, time_out)
 
     # ゲイン調整のときに使う
-    def odomPlot(self, deg, speed=0.5, time_out=10):
+    def odomPlot(self, deg, precision=0, speed=0.5, time_out=10):
         time_x = []
         deg_y = []
-        time_x, deg_y = self.rotateAngle(deg, speed, time_out)
+        time_x, deg_y = self.rotateAngle(deg, precision, speed, time_out)
         plot.plot(time_x, deg_y)
         plot.hlines(self.judg_deg, 0, time_out, color='red', linestyles='dotted')
         plot.show()
 
 
 if __name__ == '__main__':
-    rospy.init_node('pid_base_control')
+    rospy.init_node('base_control')
     base_control = BaseControl()
     base_control.debag()
     rospy.spin()
-    #base_control.odomPlot(60, 0.7, 30)  # ゲイン調整用
+    #base_control.odomPlot(90, 1, 0.7, 30)  # ゲイン調整用
