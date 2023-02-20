@@ -36,7 +36,7 @@ class ApproachPersonServer():
             print (self.human_coord)
             return True
         else:
-            rospy.logerr("<" + human_name + "> doesn't exist.")
+            #rospy.logerr("<" + human_name + "> doesn't exist.")
             return False
 
     def execute(self, srv_req):

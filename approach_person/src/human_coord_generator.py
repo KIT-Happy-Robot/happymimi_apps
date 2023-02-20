@@ -110,6 +110,7 @@ class HumanCoordGeneratorSrv():
             else:
                 pass
         self.i += 1
+        #self.h_dict_count += 1
 
     def execute(self, srv_req):
         # while len(self.human_coord_dict) < 1:
