@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <launch>
   <!-- Locationの設定＆マップの読み込み -->
-  <arg name="map_name" default="rcj_2022_yumeko"/>
+  <arg name="map_name" default="rcj_2022_yumeko2_final"/>
   <rosparam file="$(find happymimi_params)/location/$(arg map_name).yaml" command="load" ns="/location" />
   <node name="map_server" pkg="map_server" type="map_server" args="$(find happymimi_navigation)/maps/$(arg map_name).yaml" />
 
@@ -13,6 +13,9 @@
 
   <!-- navi location server -->
   <node pkg="happymimi_navigation" type="navi_location.py" name="navi_location_server" output="screen" />
-  <node pkg="happymimi_navigation" type="navi_coord.py" name="navi_coord_server" output="screen" />
+  <--<node pkg="happymimi_navigation" type="navi_coord.py" name="navi_coord_server" output="screen" />-->
+  <node pkg="happymimi_navigation" type="ad_navi_server.py" name="ad_navi_server" output="screen" />
+  <rosparam ns="/ad_navi/dwa_param" file="$(find happymimi_navigation)/param/ad_navi_param.yaml" command="load" />
+  <!--<rosparam ns="/ad_navi/location" file="" />-->
 
 </launch>

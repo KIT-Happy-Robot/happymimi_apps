@@ -1,0 +1,12 @@
+# goal
+string location_name
+float64[] coordinate
+string[] options
+
+---
+# result
+bool result
+
+---
+# feedback
+string data

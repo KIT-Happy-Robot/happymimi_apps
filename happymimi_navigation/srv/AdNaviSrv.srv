@@ -1,0 +1,9 @@
+
+string target_location
+float64[] target_coord
+string[] options
+#string state # add
+
+---
+
+bool result

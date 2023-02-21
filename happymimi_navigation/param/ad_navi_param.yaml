@@ -1,0 +1,50 @@
+
+AdNaviConstructor:
+  server_type: "service" # "action"
+
+FastLoose:
+  acc_lim_x: 1.5 
+  acc_lim_y: 0.0
+  acc_lim_th: 0.5 #theta
+  #acc_lim_theta: 0.7
+
+  max_vel_trans: 0.30
+  min_vel_trans: 0.00
+
+  max_vel_x: 0.5
+  min_vel_x: 0.0
+  max_vel_y: 0.0
+  min_vel_y: 0.0
+
+  max_vel_theta: 0.5
+  min_vel_theta: 0.0
+
+  yaw_goal_tolerance: 0.15
+  xy_goal_tolerance: 0.50
+
+  trans_stopped_vel: 0.1
+  theta_stopped_vel: 0.1
+
+Default:
+  #restore_defaults: True #(bool default: false)
+  acc_lim_x: 1.0
+  acc_lim_y: 0.0
+  acc_lim_th: 0.4
+
+  max_vel_trans: 0.30
+  min_vel_trans: 0.00
+
+  max_vel_x: 0.3
+  min_vel_x: 0.0
+  max_vel_y: 0.0
+  min_vel_y: 0.0
+
+  max_vel_theta: 0.4
+  min_vel_theta: 0.0
+
+  yaw_goal_tolerance: 0.08 # rad
+  xy_goal_tolerance: 0.20
+  # latch_xy_goal_tolerance: false
+
+  trans_stopped_vel: 0.1
+  theta_stopped_vel: 0.1
