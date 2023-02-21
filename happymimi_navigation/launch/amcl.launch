@@ -13,7 +13,7 @@
 
   <!-- navi location server -->
   <node pkg="happymimi_navigation" type="navi_location.py" name="navi_location_server" output="screen" />
-  <--<node pkg="happymimi_navigation" type="navi_coord.py" name="navi_coord_server" output="screen" />-->
+  <node pkg="happymimi_navigation" type="navi_coord.py" name="navi_coord_server" output="screen" />
   <node pkg="happymimi_navigation" type="ad_navi_server.py" name="ad_navi_server" output="screen" />
   <rosparam ns="/ad_navi/dwa_param" file="$(find happymimi_navigation)/param/ad_navi_param.yaml" command="load" />
   <!--<rosparam ns="/ad_navi/location" file="" />-->
