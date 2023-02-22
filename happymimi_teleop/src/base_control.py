@@ -85,7 +85,7 @@ class BaseControl():
         self.judg_deg = 999.0
         kp = 0.11  # 0.11
         ki = 0.015  # 0.015
-        kd = 5.0
+        kd = 1.0
         print("rotateAngle")
         start_time = time.time()
         start_plot = time.time()
@@ -109,8 +109,9 @@ class BaseControl():
                     over_flg = False
                 else:
                     pass
-                if not over_flg:
+                if abs(self.judg_deg - self.current_deg) < 10:
                     integral_value += delta_time*(self.target_deg - self.current_deg)
+                if not over_flg:
                     vel_z = kp*(self.target_deg - self.current_deg) + ki*integral_value - kd*self.anglar_vel
                 else:
                     pass
@@ -118,6 +119,8 @@ class BaseControl():
             elif self.sub_target_deg > 180:
                 self.judg_deg = self.sub_target_deg
                 # 終点が0度通過直後(10度以内)かつフィードバック値が20度未満のとき
+                if abs(self.judg_deg - self.current_deg) < 10:
+                    integral_value += delta_time*(self.sub_target_deg - self.current_deg)
                 if self.current_deg > 180:
                     over_flg = True
                 if abs(360 - self.sub_target_deg) < 10.0 and 20 - self.current_deg > 0:
@@ -125,12 +128,13 @@ class BaseControl():
                 elif self.current_deg < 180 and not over_flg:  # 0度より左側のとき
                     vel_z = -vel_max
                 else:
-                    integral_value += delta_time*(self.sub_target_deg - self.current_deg)
                     vel_z = kp*(self.sub_target_deg - self.current_deg) + ki*integral_value - kd*self.anglar_vel
             # 0度を反時計回りにまたぐとき
             else:
                 self.judg_deg = self.sub_target_deg
                 # 終点が0度通過直後のときかつフィードバック値が340度以上のとき
+                if abs(self.judg_deg - self.current_deg) < 10:
+                    integral_value += delta_time*(self.sub_target_deg - self.current_deg)
                 if self.current_deg < 180:
                     over_flg = True
                 if abs(0 - self.sub_target_deg) < 10.0 and 360 - self.current_deg < 20:
@@ -138,7 +142,6 @@ class BaseControl():
                 elif self.current_deg > 180 and not over_flg:  # 0度より右側のとき
                     vel_z = vel_max
                 else:
-                    integral_value += delta_time*(self.sub_target_deg - self.current_deg)
                     vel_z = kp*(self.sub_target_deg - self.current_deg) + ki*integral_value - kd*self.anglar_vel
             if plot_time > time_out:
                 print("Time out !!!")
@@ -217,4 +220,4 @@ if __name__ == '__main__':
     base_control = BaseControl()
     base_control.debag()
     rospy.spin()
-    #base_control.odomPlot(90, 1, 0.7, 30)  # ゲイン調整用
+    #base_control.odomPlot(3, 1, 0.7, 30)  # ゲイン調整用
