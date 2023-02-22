@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # just a location_name requesst is preferred
-# 首の角度は変えない
+#
 import rospy
 import rosparam
 import dynamic_reconfigure.client
@@ -24,7 +24,7 @@ from monitoring_patrol.srv import AdNaviSrv, AdNaviSrvResponse, AdNaviSrvRequest
 
 
 
-# 拡張版オプション付き自律移動の実行クラス
+# 
 class AdNaviServer():
   #navi_params_dict = rospy.get_param("/ad_navi_param")
   #server_type_dict = rospy.get_param("/ad_navi_param/AdNaviConstructor")
@@ -51,22 +51,22 @@ class AdNaviServer():
     
     # ACTION
     rospy.loginfo("ac_navi_server: ready to **ad_navi_acserver**")
-    self.an_ss = actionlib.SimpleActionServer('/apps/ad_navi_acserver', AdNaviAct,
-                                              execute_cb = self.actionVB,
-                                              )
+    # self.an_ss = actionlib.SimpleActionServer('/apps/ad_navi_acserver', AdNaviAct,
+    #                                           execute_cb = self.actionVB,
+    #                                           )
     self.move_base_ac = actionlib.SimpleActionClient('/move_base', MoveBaseAction)
     
     self.dwa_c = dynamic_reconfigure.client.Client('/move_base/DWAPlannerROS')
     
     # Param
-    self.navi_def_params = rospy.get_param("/ad_navi_param/FastLoose")
-    self.navi_fl_params = rospy.get_param("/ad_navi_param/Default")
-    self.location_dict = rospy.get_param("/location_dict")
+    self.navi_def_params = rospy.get_param("/dwa_default")
+    self.navi_fl_params = rospy.get_param("/ad_navi_param/FastLoose")
+    self.location_dict = rospy.get_param("/location")
     self.target_coord = [] #!!
     # Data
     self.mb_goal = MoveBaseGoal
     
-  # Requestの"option"に基づき、Naviのパラメーターを変更する関数
+  # 
   def setParam(self, option = "default"): #!!
     if option == "fast_loose":
       self.dwa_c.update_configuration(self.navi_fl_params)
@@ -74,7 +74,7 @@ class AdNaviServer():
       self.dwa_c.update_configuration(self.navi_def_params)
       rospy.sleep(0.5)
   
-  # ロケーション名の姿勢座標パラメーターを姿勢座標のリスト(self.target_coord)に格納する関数
+  # 
   def name2Coord(self, location_name):
     if location_name in self.location_dict:
       self.target_coord = self.location_dict[location_name]
@@ -84,21 +84,21 @@ class AdNaviServer():
       rospy.logerr("ad_navi: <"+location_name+"> doesn't exist.")
       return False
   
-  # self.target_coordリストに格納する関数
+  # 
   def setCoord(self, location_name, coordinate):
     #req = AdNaviSrvRequest()
     #req_coord = req.target_coord
-    # ロケーション名なし->　self.targetに座標リストRequestを格納
+    # 
     if location_name == "":
       self.target_coord = coordinate #req_coord #AdNaviSrvRequest(coordinate)
-    # ロケーション名あり-> self.targetにロケーション名の座標を格納
+    # 
     else:
       # Judge name2Coord result
       if self.name2Coord(location_name): return True
       else: rospy.loginfo("ad_navi: Failed to name2Coord"); return False
   
     
-  # 姿勢座標のリストからゴールを作成する関数
+  #
   def createGoal(self, coord_list):
     rospy.loginfo("ad_navi: Create move base goal")
     # set goal_pose
@@ -119,7 +119,7 @@ class AdNaviServer():
     
   def sendGoal(self, goal):
     rospy.loginfo("ad_navi: Send move base goal")
-    # 首は上げない
+    # 
     #self.head_pub.publish(0)
     self.move_base_ac.wait_for_server()
     self.move_base_ac.send_goal(goal)
@@ -138,33 +138,34 @@ class AdNaviServer():
         rospy.loginfo('ad_navi: Unkown MoveBase action state')
         return False
     
-  # Requestに基づき、Naviの実行結果を返す
+  # Request
   def serviceCB(self, req):
     rospy.loginfo("Execute **ad_navi_server**")
     navi_param_flg = req.options
     response = AdNaviSrvResponse()
     
-    # 目標座標を設定
+    # 
     if self.setCoord(req.target_location, req.target_coord):
       pass
     else: return response.result == False
-    # Naviのパラメーター設定
+    # Navi
     self.setParam(option = req.options)
-    # MoveBaseのゴール生成
+    # MoveBas
     self.createGoal(self.target_coord)
-    # MoveBaseへゴール送信
+    # MoveBase
     if self.sendGoal(self.goal):
-      # NaviのDWAPlannerROSパラメーター設定をデフォルトに戻す
+      # Navi
       self.setParam(option = "default")
       return response.result == True
     else: return response.result == False
     
-  # アクションサーバー
+
   # 
-  def 
+  def hoge():
+      pass
     
       
-  # Requestに基づき、Naviの実行結果を返す
+  # Request
   def actionCB(self, ):
     rospy.loginfo("Execute **ad_navi_server**")
       
