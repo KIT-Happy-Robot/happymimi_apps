@@ -8,6 +8,9 @@
 - ### [actplan_executor](./actplan_executor)
   > 行動計画を遂行するためのパッケージ
 
+- ### [approach_person](./approach_person)
+  > 人接近機能を提供するパッケージ
+
 - ### [chaser19](./chaser19)
   > 人追従機能を提供するパッケージ
 
