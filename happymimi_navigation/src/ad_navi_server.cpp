@@ -8,11 +8,10 @@
 #include <move_base_msgs/MoveBaseAction.h>
 #include <actionlib/client/simple_action_client.h>
 #include <std_srvs/Empty.h>
-#include <std_msgs/msg/string.h>
-#include <std_msgs/msg/float64.h>
+#include <std_msgs/String.h>
+#include <std_msgs/Float64.h>
 
-#include <happymimi_msgs2/navi_location.h>
-#include <mimi_navi2/AdNaviSrv.h>
+#include <happymimi_navigation/AdNaviSrv.h>
 //#include <mimi_navi2/AdNaviAct.h>
 
 
