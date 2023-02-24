@@ -1,7 +1,0 @@
-# req
-string state
-string file_name
-string loc_name
----
-# res
-bool result
