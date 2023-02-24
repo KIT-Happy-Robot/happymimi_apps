@@ -24,7 +24,7 @@ approach_personは人接近機能を提供するROSパッケージです。
 
 - ### human_coord_generator
     > human_coord_generatorは人のidと座標の辞書データを作成し、`tmp_human_location`として保存するためのサービスサーバです。
-    > ここでは、[happymimi_recognition/recognition_processing](https://github.com/KIT-Happy-Robot/happymimi_recognition/tree/master/recognition_processing#multiple_localize)の[recognition/multiple_localizeサービスサーバ](https://github.com/KIT-Happy-Robot/happymimi_recognition/tree/master/recognition_processing#multiple_localize)から人のxy座標を取得し、pub_human_tfノードを用いてクォータ二オン座標に変換します。
+    > ここでは、[happymimi_recognition/recognition_processing](https://github.com/KIT-Happy-Robot/happymimi_recognition/tree/master/recognition_processing)の[recognition/multiple_localizeサービスサーバ](https://github.com/KIT-Happy-Robot/happymimi_recognition/tree/master/recognition_processing#multiple_localize)から人のxy座標を取得し、pub_human_tfノードを用いてクォータ二オン座標に変換します。
     > さらにそれをマップ座標系に変換して人のidと紐付けることで辞書型データを作成し、[happymimi_params/location](https://github.com/KIT-Happy-Robot/happymimi_robot/tree/develop/happymimi_params/location)に`tmp_human_location`として保存します。
     > <br>また、[hapyymimi_params/location](https://github.com/KIT-Happy-Robot/happymimi_robot/tree/develop/happymimi_params/location)の`<map_name>_range.yaml`を読み込み、人の座標がマップの範囲内にあるか否かを判定する処理を行います。これは大会会場などで観客の座標を登録してしまうことを防ぎます。
     > 
