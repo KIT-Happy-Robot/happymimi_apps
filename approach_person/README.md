@@ -45,7 +45,7 @@ approach_personは人接近機能を提供するROSパッケージです。
 
 <br>approach_personのデータフロー図を以下に示します。
 <p align="center">
- <img src="https://user-images.githubusercontent.com/45844173/221177745-8d40892e-df6a-4850-b029-3a5becef0e6e.png" width="100%">
+ <img src="https://user-images.githubusercontent.com/45844173/221190378-a02eb314-a019-40cb-b145-fd58b51d71a5.png" width="100%">
 </p>
 <p align="center">
   approach_personのデータフロー
