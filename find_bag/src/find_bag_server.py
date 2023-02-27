@@ -18,6 +18,23 @@ from happymimi_manipulation_msgs.srv import ArmControl
 teleop_path = roslib.packages.get_pkg_dir('happymimi_teleop')
 sys.path.insert(0, os.path.join(teleop_path, 'src/'))
 from base_control import BaseControl
+# req
+# FindBagSrv
+# string left_right
+# #float64 bag_width  # 手で測って合ってるか判断
+# float64 rotate_speed
+# ---
+# # res
+# float64 distance
+# bool result
+
+# GraspBagSrv.srv
+# # req
+# string left_right
+# float64[] data
+# ---
+# # res
+# bool result
 
 
 class FindBag():
@@ -37,32 +54,44 @@ class FindBag():
         # Module
         self.base_control = BaseControl()
         # Value
-        self.laser_list = []  # LRFのデータが入るリスト
-        self.center_range = []  # 中心から拡張するためのリスト
-        self.center_index = 0.0  # 真ん中の要素番号を格納する変数
-        self.index_sum = 0.0  # LRFの要素数の合計
-        self.step_angle = 0.0  # LRFの1ステップあたりの角度
-        self.rotate_value = 0.0  # /cmd_velの値を格納する変数
+        self.laser_list = []  # LRFの�?ータが�?�るリス�?
+        self.center_range = []  # 中�?から拡張するためのリス�?
+        self.center_index = 0.0  # 真ん中の要�?番号を�?�納する変数
+        self.index_sum = 0.0  # LRFの要�?数の合�?
+        self.step_angle = 0.0  # LRFの1ス�?�?プあたりの角度
+        self.rotate_value = 0.0  # /cmd_velの値を�?�納する変数
 
+    # 
     def laserCB(self, receive_msg):
         self.laser_list = list(receive_msg.ranges)
 
+    # 
     def velCB(self, receive_msg):
         self.rotate_value = receive_msg.angular.z
 
+    # 1�ǃY���邾���Ńo�b�O�̈ʒu���X�S�C���ꂤr����
     def roundHalfUp(self, value):
-        decimals = math.modf(value)[0]
+        decimals = math.modf(value)[0] # [o0.25]
         return int(value + 1) if decimals >= 0.5 else int(value)
 
+    # ���[�U�͈̔͂��i�����Ƃ��̕����̂��̃Y����ϊ����邽��
     def laserIndex(self):
         self.index_sum = len(self.laser_list)
         self.step_angle = 180/self.index_sum
         self.center_index = self.roundHalfUp(self.index_sum/2 - 1)
 
+    # �p�x����C���f�b�N�X�ɕϊ��i�P�C���f�b�N�X0.25�j
+    def degToIndex():
+        pass
+    # ��͈͂����߂�del�ŏ����i�j
+    def rangeDecrease(self, sensing_degree):
+        pass
+        
     def average(self, input_list):
         ave = sum(input_list)/len(input_list)
         return ave
 
+    # Confirm liser_list include any value
     def laserCheck(self):
         while not self.laser_list and not rospy.is_shutdown():
             rospy.loginfo('No laser data available ...')
@@ -71,11 +100,11 @@ class FindBag():
     def centerSpread(self, spread_value, left_right):
         self.center_range = self.laser_list
         if left_right == 'right':
-            del self.center_range[0 : self.center_index]  # 右半分削除
-            del self.center_range[-self.center_index+1+spread_value : ]  # リストの先頭から1つずつ追加
+            del self.center_range[0 : self.center_index]  # 右半�??削除
+            del self.center_range[-self.center_index+1+spread_value : ]  # リスト�?�先�?�から1つずつ追�?
         elif left_right == 'left':
-            del self.center_range[self.center_index+1 : self.index_sum]  # 左半分削除
-            del self.center_range[ : -1-spread_value]  # リストの末尾から1つずつ追加
+            del self.center_range[self.center_index+1 : self.index_sum]  # 左半�??削除
+            del self.center_range[ : -1-spread_value]  # リスト�?�末尾から1つずつ追�?
             self.center_range = list(reversed(self.center_range))
         else:
             rospy.loginfo('Not left_right value')
@@ -157,3 +186,4 @@ if __name__ == '__main__':
     fb = FindBag()
     rospy.spin()
     #fb.scanPlot('left')
+    #fb.scanPlot("right", 100)
