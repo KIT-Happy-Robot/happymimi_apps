@@ -25,7 +25,7 @@ class PubHumanTFAS():
     def execute(self, req_msg):
         self.t.header.frame_id = "camera_depth_frame"
         self.t.child_frame_id = req_msg.name
-        self.t.transform.translation.x = req_msg.dist_x - 0.10
+        self.t.transform.translation.x = req_msg.dist_x - 0.05
         self.t.transform.translation.y = req_msg.dist_y
         self.t.transform.translation.z = 0.0
         self.t.transform.rotation.x = 0.0

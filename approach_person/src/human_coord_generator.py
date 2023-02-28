@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import sys
+import os
 import rospy
 import roslib
 import tf2_ros
@@ -70,6 +71,7 @@ class HumanCoordGeneratorSrv():
 
     def saveDict(self):
         param_path = roslib.packages.get_pkg_dir("happymimi_params")
+        #os.remove(param_path + '/location/'  + 'tmp_human_location.yaml')
         rospy.set_param('/tmp_human_location', self.human_coord_dict)
         rosparam.dump_params(param_path + '/location/'  + 'tmp_human_location.yaml', '/tmp_human_location')
 
@@ -87,8 +89,9 @@ class HumanCoordGeneratorSrv():
     # def change_dict_key(self, d, old_key, new_key):
     def change_dict_key(self, d, old_key):
         self.human_coord_dict.clear()
-        #new_key = "human_" + str(len(self.human_coord_dict) + 1)
-        new_key = "human_" + str(self.i)
+        new_key = "human_" + str(len(self.human_coord_dict) + 1)
+        #new_key = "human_" + str(self.i)
+        #new_key = "human_0"
         print(new_key)
         d[new_key] = d[old_key]
         print(old_key)
@@ -98,6 +101,7 @@ class HumanCoordGeneratorSrv():
         # map座標系に変換してlocation dictを作成
         for i in range(list_len):
             frame_id = "human_" + str(i)
+            #frame_id + "human_0"
             human_dict = self.ghc.execute(frame_id, self.dist_data.points[i].x, self.dist_data.points[i].y)
             if self.judgeMapin(human_dict[frame_id]):
                 #new_id = "human_" + str(self.h_dict_count)
@@ -109,13 +113,12 @@ class HumanCoordGeneratorSrv():
                 self.h_dict_count += 1
             else:
                 pass
-        self.i += 1
         #self.h_dict_count += 1
 
     def execute(self, srv_req):
         # while len(self.human_coord_dict) < 1:
         # for i in range(2):
-        for i in range(1):
+        for i in range(2):
             print ("count num: " + str(self.h_dict_count))
             # if i != 0:
                 # self.bc.rotateAngle(-45, 0.3)

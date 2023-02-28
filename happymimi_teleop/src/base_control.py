@@ -84,7 +84,7 @@ class BaseControl():
         vel_max = max_speed
         self.judg_deg = 999.0
         kp = 0.11  # 0.11
-        ki = 0.015  # 0.015
+        ki = 0.022  # 0.015
         kd = 1.0
         print("rotateAngle")
         start_time = time.time()
@@ -148,6 +148,7 @@ class BaseControl():
                 break
             if abs(vel_z) > vel_max:
                 vel_z = numpy.sign(vel_z)*vel_max
+            #print(vel_z)
             self.twist_value.angular.z = vel_z
             self.twist_pub.publish(self.twist_value)
             # グラフプロット用リスト
@@ -176,7 +177,7 @@ class BaseControl():
         print("\n========== START translateDist ==========")
         self.publishLinerX()
 
-    def rotateAngle(self, deg, precision=0, speed=0.7, time_out=10):
+    def rotateAngle(self, deg, precision=0, speed=0.7, time_out=20):
         try:
             deg = deg.data
         except AttributeError:
@@ -220,4 +221,4 @@ if __name__ == '__main__':
     base_control = BaseControl()
     base_control.debag()
     rospy.spin()
-    #base_control.odomPlot(3, 1, 0.7, 30)  # ゲイン調整用
+    #base_control.odomPlot(1, 1, 0.7, 30)  # ゲイン調整用
