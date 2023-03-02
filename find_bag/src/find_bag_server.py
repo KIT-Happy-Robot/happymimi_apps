@@ -159,7 +159,6 @@ class FindBag():
             rospy.sleep(0.05)
         range_dict[left_right + '_data'] = list(reversed(search_range))
         range_dict[left_right + '_bag_range'] = bag_range
-        self.startUp()
         return range_dict
 
     def rangeToAngle(self, left_right, range_dict):
@@ -171,6 +170,7 @@ class FindBag():
             angle_to_bag = -1*self.bag_center
         elif left_right == 'all':
             self.bag_center = range_dict['all_bag_range'][self.roundHalfUp(len(range_dict['all_bag_range'])/2 - 1)]
+            self.startUp()
             angle_to_bag = self.center_index - self.bag_center
             print(angle_to_bag)
         else:
@@ -184,12 +184,12 @@ class FindBag():
             rospy.loginfo("You are not typing correctly.")
         move_angle = self.rangeToAngle(left_right, range_dict)
         print(f'\nAngle to bag >>> {move_angle}\n')
-        self.base_control.rotateAngle(move_angle, rotate_speed, 20)  # 回転の調整はここ
+        self.base_control.rotateAngle(move_angle, 1,  rotate_speed, 20)  # 回転の調整はここ
         while self.rotate_value != 0.0 and not rospy.is_shutdown():
             rospy.loginfo('Rotating ...')
             rospy.sleep(0.5)
         rospy.sleep(0.5)
-        return self.laser_list[self.center_index]
+        return self.laser_list[359]
 
     def bagGrasp(self, left_right, coordinate=[0.25, 0.4]):
         move_angle = 6
@@ -206,8 +206,8 @@ class FindBag():
         self.base_control.translateDist(dist_to_bag - 0.30)
         rospy.sleep(1.0)
         #self.scanPlot('all', 180)
-        dist_to_bag = self.bagFocus('all')
-        self.base_control.rotateAngle(move_angle, 0.7, 20)
+        dist_to_bag = self.bagFocus('all', 80)
+        self.base_control.rotateAngle(move_angle, 1, 0.7, 20)
         rospy.sleep(0.5)
         self.base_control.translateDist(dist_to_bag - 0.05, 0.1)
         rospy.sleep(0.5)
@@ -222,6 +222,7 @@ class FindBag():
 
     def srv_GraspBag(self, srv_req):
         self.bagGrasp(srv_req.left_right, srv_req.data)
+        self.startUp()
         return GraspBagSrvResponse(result = True)
 
     def scanPlot(self, left_right='NULL', sensing_degree=180):
@@ -252,4 +253,4 @@ if __name__ == '__main__':
     rospy.spin()
     #print(fb.bagFocus('all', 180))
     #fb.bagGrasp('right')
-    #fb.scanPlot('right', 100)
+    #fb.scanPlot('all', 80)

@@ -50,6 +50,7 @@ class GenerateHumanCoord():
                 continue
             self.rate.sleep()
         self.sac.cancel_goal()
+        print(f"ghc >>> {self.human_dict}")
         return self.human_dict
 
 
@@ -76,6 +77,7 @@ class HumanCoordGeneratorSrv():
         rosparam.dump_params(param_path + '/location/'  + 'tmp_human_location.yaml', '/tmp_human_location')
 
     def judgeMapin(self, coord):
+        self.map_range = rospy.get_param('/map_range')
         rpy = coord
         # print rpy
         if coord[0] < self.map_range["min_x"] or coord[0] > self.map_range["max_x"]:
@@ -88,7 +90,7 @@ class HumanCoordGeneratorSrv():
 
     # def change_dict_key(self, d, old_key, new_key):
     def change_dict_key(self, d, old_key):
-        self.human_coord_dict.clear()
+        #self.human_coord_dict.clear()
         new_key = "human_" + str(len(self.human_coord_dict) + 1)
         #new_key = "human_" + str(self.i)
         #new_key = "human_0"
@@ -114,31 +116,35 @@ class HumanCoordGeneratorSrv():
             else:
                 pass
         #self.h_dict_count += 1
+       # self.i += 1
 
     def execute(self, srv_req):
         # while len(self.human_coord_dict) < 1:
         # for i in range(2):
-        for i in range(2):
-            print ("count num: " + str(self.h_dict_count))
-            # if i != 0:
-                # self.bc.rotateAngle(-45, 0.3)
-            # 人がいるか
-            self.dist_data = self.ml_srv(target_name = "person")
-            print(self.dist_data)
-            list_len  = len(list(self.dist_data.points))
-            # print list_len
-            if list_len == 0 :
-                # self.bc.rotateAngle(-75)
-                # rospy.sleep(2.0)
-                pass
-            else:
-                self.createDict(list_len)
+        #for i in range(1):
+        print ("count num: " + str(self.h_dict_count))
+        # if i != 0:
+            # self.bc.rotateAngle(-45, 0.3)
+        # 人がいるか
+        self.dist_data = self.ml_srv(target_name = "person")
+        print(self.dist_data)
+        list_len  = len(list(self.dist_data.points))
+        # print list_len
+        if list_len == 0 :
+            # self.bc.rotateAngle(-75)
+            # rospy.sleep(2.0)
+            pass
+        else:
+            self.createDict(list_len)
             # 台車の回転
             #if i < 2:
             #    self.bc.rotateAngle(-50, 0.3)
             #    rospy.sleep(1.0)
+       # self.human_coord_dict.clear()
         self.saveDict()
-        print (self.human_coord_dict)
+        print("====================")
+        print(self.human_coord_dict)
+        self.human_coord_dict.clear()
         return SimpleTrgResponse(result = True)
 
 

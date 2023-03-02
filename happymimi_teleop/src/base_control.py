@@ -109,8 +109,10 @@ class BaseControl():
                     over_flg = False
                 else:
                     pass
-                if abs(self.judg_deg - self.current_deg) < 10:
+                if abs(self.judg_deg - self.current_deg) < 5:
                     integral_value += delta_time*(self.target_deg - self.current_deg)
+                else:
+                    integral_value = 0
                 if not over_flg:
                     vel_z = kp*(self.target_deg - self.current_deg) + ki*integral_value - kd*self.anglar_vel
                 else:
@@ -119,8 +121,10 @@ class BaseControl():
             elif self.sub_target_deg > 180:
                 self.judg_deg = self.sub_target_deg
                 # 終点が0度通過直後(10度以内)かつフィードバック値が20度未満のとき
-                if abs(self.judg_deg - self.current_deg) < 10:
+                if abs(self.judg_deg - self.current_deg) < 5:
                     integral_value += delta_time*(self.sub_target_deg - self.current_deg)
+                else:
+                    integral_value = 0
                 if self.current_deg > 180:
                     over_flg = True
                 if abs(360 - self.sub_target_deg) < 10.0 and 20 - self.current_deg > 0:
@@ -133,8 +137,10 @@ class BaseControl():
             else:
                 self.judg_deg = self.sub_target_deg
                 # 終点が0度通過直後のときかつフィードバック値が340度以上のとき
-                if abs(self.judg_deg - self.current_deg) < 10:
+                if abs(self.judg_deg - self.current_deg) < 5:
                     integral_value += delta_time*(self.sub_target_deg - self.current_deg)
+                else:
+                    integral_value = 0
                 if self.current_deg < 180:
                     over_flg = True
                 if abs(0 - self.sub_target_deg) < 10.0 and 360 - self.current_deg < 20:
@@ -143,19 +149,19 @@ class BaseControl():
                     vel_z = vel_max
                 else:
                     vel_z = kp*(self.sub_target_deg - self.current_deg) + ki*integral_value - kd*self.anglar_vel
+            rospy.sleep(0.05)
             if plot_time > time_out:
                 print("Time out !!!")
                 break
             if abs(vel_z) > vel_max:
                 vel_z = numpy.sign(vel_z)*vel_max
-            #print(vel_z)
             self.twist_value.angular.z = vel_z
             self.twist_pub.publish(self.twist_value)
             # グラフプロット用リスト
             time_list.append(plot_time)
             deg_list.append(self.current_deg)
             start_time = time.time()
-            rospy.sleep(0.1)
+            rospy.sleep(0.05)
         #print(round(self.judg_deg, 1), round(self.current_deg, 1))
         time_list.append(plot_time)
         deg_list.append(self.current_deg)
@@ -220,5 +226,5 @@ if __name__ == '__main__':
     rospy.init_node('base_control')
     base_control = BaseControl()
     base_control.debag()
-    rospy.spin()
-    #base_control.odomPlot(1, 1, 0.7, 30)  # ゲイン調整用
+    #rospy.spin()
+    base_control.odomPlot(56.42163661581137, 1, 0.7, 20)  # ゲイン調整用
