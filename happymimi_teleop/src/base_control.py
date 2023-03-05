@@ -12,6 +12,7 @@ import rospy
 import time
 import math
 import numpy
+import threading
 import matplotlib.pyplot as plot 
 import tf
 from nav_msgs.msg import Odometry
@@ -84,8 +85,8 @@ class BaseControl():
         vel_max = max_speed
         self.judg_deg = 999.0
         kp = 0.11  # 0.11
-        ki = 0.022  # 0.015
-        kd = 1.0
+        ki = 0.022  # 0.022
+        kd = 1.0  # 1.0
         print("rotateAngle")
         start_time = time.time()
         start_plot = time.time()
@@ -163,8 +164,6 @@ class BaseControl():
             start_time = time.time()
             rospy.sleep(0.05)
         #print(round(self.judg_deg, 1), round(self.current_deg, 1))
-        time_list.append(plot_time)
-        deg_list.append(self.current_deg)
         self.twist_value.angular.z = 0.0
         self.twist_pub.publish(self.twist_value)
         self.sub_target_deg = 0.0
@@ -216,15 +215,30 @@ class BaseControl():
     def odomPlot(self, deg, precision=0, speed=0.5, time_out=10):
         time_x = []
         deg_y = []
-        time_x, deg_y = self.rotateAngle(deg, precision, speed, time_out)
-        plot.plot(time_x, deg_y)
-        plot.hlines(self.judg_deg, 0, time_out, color='red', linestyles='dotted')
+        plot_time = 0.0
+        rotate_thread = threading.Thread(target=self.rotateAngle, args=(deg, precision, speed, time_out))
+        rotate_thread.start()
+        rospy.sleep(0.05)
+        start_time = time.time()
+        while not rospy.is_shutdown():
+            if len(threading.enumerate()) - 8 == 0 and time_out < plot_time:
+                break
+            plot_time = time.time() - start_time
+            time_x.append(plot_time)
+            deg_y.append(self.current_deg)
+            plot.plot(time_x, deg_y, color='blue')
+            plot.hlines(self.judg_deg, 0, time_out, color='red', linestyles='dotted', label="Target")
+            plot.xlabel("Time [sec]")
+            plot.ylabel("Degree [deg]")
+            plot.xlim(0, time_out)
+            plot.ylim(min(deg_y), self.judg_deg + 10)
+            plot.pause(0.1)
+        print("All Plottted!")
         plot.show()
-
 
 if __name__ == '__main__':
     rospy.init_node('base_control')
     base_control = BaseControl()
     base_control.debag()
-    #rospy.spin()
-    base_control.odomPlot(56.42163661581137, 1, 0.7, 20)  # ゲイン調整用
+    rospy.spin()
+    #base_control.odomPlot(30, 1, 0.7, 10)  # ゲイン調整用
