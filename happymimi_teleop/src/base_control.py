@@ -216,23 +216,35 @@ class BaseControl():
         time_x = []
         deg_y = []
         plot_time = 0.0
+        # グラフの描画とrotateAngleを並列処理する
         rotate_thread = threading.Thread(target=self.rotateAngle, args=(deg, precision, speed, time_out))
         rotate_thread.start()
         rospy.sleep(0.05)
+        
         start_time = time.time()
         while not rospy.is_shutdown():
             if len(threading.enumerate()) - 8 == 0 and time_out < plot_time:
                 break
             plot_time = time.time() - start_time
+            # グラフデータ作成
             time_x.append(plot_time)
             deg_y.append(self.current_deg)
-            plot.plot(time_x, deg_y, color='blue')
-            plot.hlines(self.judg_deg, 0, time_out, color='red', linestyles='dotted', label="Target")
+            # 軸ラベル
             plot.xlabel("Time [sec]")
             plot.ylabel("Degree [deg]")
+            # プロット範囲
             plot.xlim(0, time_out)
             plot.ylim(min(deg_y), self.judg_deg + 10)
+            # プロット
+            plot.plot(time_x, deg_y, color='blue', label='Odom data')
+            plot.hlines(self.judg_deg, 0, time_out, color='red', linestyles='dotted', label='Target')
+            # 凡例表示
+            plot.legend()
+            # 0.1秒間隔で更新
             plot.pause(0.1)
+            # 画面初期化
+            plot.clf()
+
         print("All Plottted!")
         plot.show()
 
