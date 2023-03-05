@@ -43,7 +43,7 @@ class FindBag():
         self.step_angle = 0.0  # LRFの1ステップあたりの角度
         self.rotate_value = 0.0  # /cmd_velの値を格納する変数
         self.bag_center = 0.0  # バッグの中心のインデックスを格納する変数
-        
+
     def laserCB(self, receive_msg):
         self.laser_list = list(receive_msg.ranges)
 
@@ -63,14 +63,14 @@ class FindBag():
         self.center_index = self.roundHalfUp(self.index_sum/2 - 1)
         print(f"\nNumber of laser data >>> {self.index_sum}")
         print(f"Degree per step >>> {self.step_angle}")
-        print(f"Middle of laser index >>> {self.center_index}\n")
+        print(f"Center of laser index >>> {self.center_index}\n")
 
     def laserIndex(self, laser_data):
         self.laserCheck()
         self.index_sum = len(laser_data)
         self.center_index = self.roundHalfUp(self.index_sum/2 - 1)
         print(f"\nNumber of laser data >>> {self.index_sum}")
-        print(f"Middle of laser index >>> {self.center_index}\n")
+        print(f"Center of laser index >>> {self.center_index}\n")
 
     def roundHalfUp(self, value):
         decimals = math.modf(value)[0]
@@ -170,9 +170,8 @@ class FindBag():
             angle_to_bag = -1*self.bag_center
         elif left_right == 'all':
             self.bag_center = range_dict['all_bag_range'][self.roundHalfUp(len(range_dict['all_bag_range'])/2 - 1)]
-            self.startUp()
             angle_to_bag = self.center_index - self.bag_center
-            print(angle_to_bag)
+            print(f"Center Index: {self.center_index} >>> Bag Center: {self.bag_center}")
         else:
             pass
         return angle_to_bag*self.step_angle
@@ -189,7 +188,8 @@ class FindBag():
             rospy.loginfo('Rotating ...')
             rospy.sleep(0.5)
         rospy.sleep(0.5)
-        return self.laser_list[359]
+        self.startUp()
+        return self.laser_list[self.center_index]
 
     def bagGrasp(self, left_right, coordinate=[0.25, 0.4]):
         move_angle = 6
@@ -206,7 +206,7 @@ class FindBag():
         self.base_control.translateDist(dist_to_bag - 0.30)
         rospy.sleep(1.0)
         #self.scanPlot('all', 180)
-        dist_to_bag = self.bagFocus('all', 80)
+        dist_to_bag = self.bagFocus('all', 100)
         self.base_control.rotateAngle(move_angle, 1, 0.7, 20)
         rospy.sleep(0.5)
         self.base_control.translateDist(dist_to_bag - 0.05, 0.1)
@@ -222,7 +222,6 @@ class FindBag():
 
     def srv_GraspBag(self, srv_req):
         self.bagGrasp(srv_req.left_right, srv_req.data)
-        self.startUp()
         return GraspBagSrvResponse(result = True)
 
     def scanPlot(self, left_right='NULL', sensing_degree=180):
@@ -250,7 +249,7 @@ if __name__ == '__main__':
     rospy.init_node('find_bag_node')
     fb = FindBag()
     fb.startUp()
-    rospy.spin()
+    #rospy.spin()
     #print(fb.bagFocus('all', 180))
-    #fb.bagGrasp('right')
-    #fb.scanPlot('all', 80)
+    fb.bagGrasp('left')
+    #fb.scanPlot('all', 180)
