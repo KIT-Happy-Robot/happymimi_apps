@@ -90,20 +90,20 @@ const int kOriginalArea = g_find_leg_area;
 
 #ifdef VER2 //yamada
 int g_find_leg_radius = 45 ; // 検出範囲(円)の中心座標からの半径[px],yamada,ver2
-const int    kExtendRadius        = 70 ;  // 見失ったときの検出範囲 [px],ver2
+const int    kExtendRadius        = 60 ;  // 見失ったときの検出範囲 [px],ver2
 const int    kOriginalRadius      = g_find_leg_radius; // ver2
 const int    kMagnificationWorldImagePos = 10; // 画像上で物体同士が重ならないようにするための世界座標の倍率,ver2 10
 const int    kUpdateLastImageCount = 30; // 比較する世界座標系の画像を更新するループ回数 one loop 30[ms],ver2
 #endif
 
 const double kFollowMaxDistance = 6.0; // 追従距離の最大
-const double kFollowDistance    = 0.3; // 人からこの距離で追従する
-const double kFollowMinDistance = 0.3; // 追従距離の最小
+const double kFollowDistance    = 0.5; // 人からこの距離で追従する
+const double kFollowMinDistance = 0.5; // 追従距離の最小
 const double kFollowAngle       = 180; // 探す範囲は正面のこの角度[deg]
 const double kGainLinear        = 0.4;  // P制御比例ゲイン（並進0.4）
 const double kKp                = 0.20; // PD制御ゲイン(回転0.20) 0.20
 const double kKd                = 3.0; // 5.25(3.0)
-const double kLinearMaxSpeed    = 0.6;  // 並進の最大速度[m/s]
+const double kLinearMaxSpeed    = 0.4;  // 並進の最大速度[m/s]
 const double kTurnMaxSpeed      = 0.5;  // 角速度 最大3.14[rad/s](0.6)
 //yamada
 const double kDefaultDetectPosX	= 250;  // 検出範囲(円)のxの初期の中心座標,[px] 250
