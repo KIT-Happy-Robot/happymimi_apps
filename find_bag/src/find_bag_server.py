@@ -207,6 +207,7 @@ class FindBag():
         rospy.sleep(1.0)
         #self.scanPlot('all', 180)
         dist_to_bag = self.bagFocus('all', 100)
+        # バッグの取っ手に指を通すために少し回転
         self.base_control.rotateAngle(move_angle, 1, 0.7, 20)
         rospy.sleep(0.5)
         self.base_control.translateDist(dist_to_bag - 0.05, 0.1)
