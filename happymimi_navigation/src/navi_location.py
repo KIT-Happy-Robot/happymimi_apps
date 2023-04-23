@@ -52,7 +52,7 @@ class NaviLocationServer():
         self.clear_costmap()
         rospy.sleep(0.5)
         # start navigation
-        self.head_pub.publish(0)
+        self.head_pub.publish(10)
         self.ac.wait_for_server()
         self.ac.send_goal(goal)
         # self.ac.wait_for_result()

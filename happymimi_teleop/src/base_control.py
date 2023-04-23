@@ -252,5 +252,5 @@ if __name__ == '__main__':
     rospy.init_node('base_control')
     base_control = BaseControl()
     base_control.debag()
-    rospy.spin()
-    #base_control.odomPlot(30, 1, 0.7, 10)  # ゲイン調整用
+    #rospy.spin()
+    base_control.odomPlot(30, 1, 0.7, 10)  # ゲイン調整用

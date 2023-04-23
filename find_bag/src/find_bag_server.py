@@ -192,14 +192,14 @@ class FindBag():
         return self.laser_list[self.center_index]
 
     def bagGrasp(self, left_right, coordinate=[0.25, 0.4]):
-        move_angle = 6
+        move_angle = 4.0
         if left_right == 'left':
             move_angle = -move_angle
         else:
             pass
         self.arm_pose('carry')
         self.eef.publish(False)
-        dist_to_bag = self.bagFocus(left_right, 100, 0.7)
+        dist_to_bag = self.bagFocus(left_right, 70, 0.7)
         print(coordinate)
         self.manipulation(coordinate)
         rospy.sleep(1.0)
@@ -209,7 +209,7 @@ class FindBag():
         dist_to_bag = self.bagFocus('all', 100)
         self.base_control.rotateAngle(move_angle, 1, 0.7, 20)
         rospy.sleep(0.5)
-        self.base_control.translateDist(dist_to_bag - 0.05, 0.1)
+        self.base_control.translateDist(dist_to_bag - 0.08 , 0.1)#- 0.05, 0.1)
         rospy.sleep(0.5)
         self.eef.publish(True)
         rospy.sleep(0.5)
@@ -249,7 +249,7 @@ if __name__ == '__main__':
     rospy.init_node('find_bag_node')
     fb = FindBag()
     fb.startUp()
-    #rospy.spin()
+    rospy.spin()
     #print(fb.bagFocus('all', 180))
-    fb.bagGrasp('left')
-    #fb.scanPlot('all', 180)
+    #fb.bagGrasp('left')
+    #fb.scanPlot('right', 70)
