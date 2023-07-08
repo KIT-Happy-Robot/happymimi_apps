@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<launch>
-  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find happymimi_rviz_launchers)/rviz/navigation.rviz"/>
-
-  <!-- <node name="rviz" pkg="rviz" type="rviz" args="&#45;d $(find happymimi_rviz_launchers)/rviz/original_navigation.rviz"/> -->
-
-</launch>

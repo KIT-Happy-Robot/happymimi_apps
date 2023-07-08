@@ -1,6 +1,0 @@
-# req
-string state
-string name
----
-# res
-bool result

@@ -1,8 +1,0 @@
-#!/bin/sh -e
-ps aux | grep '/home/demulab/catkin_ws/devel/lib/chaser19/chaser19'   | grep -v grep | awk '{ print "kill -9", $2 }' | sh &
-ps aux | grep 'turtlebot_bringup 3dsensor.launch'  | grep -v grep | awk '{ print "kill -9", $2 }' | sh &
-ps aux | grep 'pub /follow_human std_msgs/String start'  | grep -v grep | awk '{ print "kill -9", $2 }' | sh &
-ps aux | grep kobuki_dashboard  | grep -v grep | awk '{ print "kill -9", $2 }' | sh &
-ps aux | grep minimal.launch   | grep -v grep | awk '{ print "kill -9", $2 }' | sh &
-ps aux | grep 'rosbag record -a'  | grep -v grep | awk '{ print "kill -9", $2 }' | sh &
-

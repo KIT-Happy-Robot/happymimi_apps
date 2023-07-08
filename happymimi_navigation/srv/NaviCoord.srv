@@ -1,5 +1,0 @@
-# req
-float32[] loc_coord
----
-# res
-bool result

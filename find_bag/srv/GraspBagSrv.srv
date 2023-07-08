@@ -1,6 +1,0 @@
-# req
-string left_right
-float64[] data
----
-# res
-bool result

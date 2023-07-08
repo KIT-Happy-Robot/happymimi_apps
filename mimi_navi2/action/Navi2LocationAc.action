@@ -1,0 +1,5 @@
+string location_name
+---
+float64 move_distance
+---
+bool result

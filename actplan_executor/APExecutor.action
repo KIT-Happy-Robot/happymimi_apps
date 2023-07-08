@@ -1,9 +1,0 @@
-# goal
-string[] act
-string[] data
----
-# result
-string data
----
-# feedback
-string data
