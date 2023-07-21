@@ -10,7 +10,7 @@
 #include "nav2_msgs/action/navigate_to_pose.hpp"
 #include "rclcpp/time.hpp"
 
-#include "happymimi_msgs2/srv/navi_location.hpp"
+#include "happymimi_msgs/srv/navi_location.hpp"
 //#include "mimi_navi2/action/nav2_loc_ac.hpp"
 
 using namespace std::chrono_literals;

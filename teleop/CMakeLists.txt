@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(mimi_teleop2)
+project(teleop)
 
 # Default to C99
 if(NOT CMAKE_C_STANDARD)
@@ -33,7 +33,7 @@ find_package(nav_msgs REQUIRED)
 #)
 
 install(
-  DIRECTORY src include scripts mimi_teleop2
+  DIRECTORY src include scripts teleop
   DESTINATION share/${PROJECT_NAME}
 )
 
