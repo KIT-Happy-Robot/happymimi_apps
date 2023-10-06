@@ -5,7 +5,8 @@ import rclpy
 from rclpy.node import Node
 import time
 import math
-import tf
+#import tf
+import tf_transformations
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Twist
 from std_msgs.msg import Float64
@@ -39,7 +40,7 @@ class BaseControl(Node):
       receive_msg.pose.pose.orientation.z,
       receive_msg.pose.pose.orientation.w)
     #print(self.quaternion)
-    self.current_euler = tf.transformations.euler_from_quaternion(self.quaternion) #!!!
+    self.current_euler = tf_transformations.euler_from_quaternion(self.quaternion) #!!!
     #print(self.current_euler)
     self.current_deg = math.degrees(self.current_euler[2])
     #print(self.current_deg)
