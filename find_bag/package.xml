@@ -62,6 +62,15 @@
   <exec_depend>rospy</exec_depend>
   <exec_depend>std_msgs</exec_depend>
 
+  <!-- Happymimi_msgs is a custom message package by Takuchan-->
+  <build_depend>happymimi_msgs</build_depend>
+  <build_export_depend>happymimi_msgs</build_export_depend>
+  <exec_depend>happymimi_msgs</exec_depend>
+
+  <!-- Happymimi_manipulation_msgs is a custom message package by Takuchan-->
+  <build_depend>happymimi_manipulation_msgs</build_depend>
+  <build_export_depend>happymimi_manipulation_msgs</build_export_depend>
+  <exec_depend>happymimi_manipulation_msgs</exec_depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
