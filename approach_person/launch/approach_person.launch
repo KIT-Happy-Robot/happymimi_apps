@@ -6,6 +6,6 @@
   <node name="approach_person_server" pkg="approach_person" type="approach_person_server.py" output="screen" />
 
   <rosparam file="$(find happymimi_params)/location/tmp_human_location.yaml" command="load" ns="/tmp_human_location" />
-  <rosparam file="$(find happymimi_params)/location/rcap_2021_map_range.yaml" command="load" ns="/map_range" />
+  <rosparam file="$(find happymimi_params)/location/receptionist2_range.yaml" command="load" ns="/map_range" />
 
 </launch>

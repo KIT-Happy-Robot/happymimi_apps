@@ -84,7 +84,7 @@ class HumanCoordGeneratorSrv():
         # print rpy
         if coord[0] < self.map_range["min_x"] or coord[0] > self.map_range["max_x"]:
             jm_result = False
-        elif coord[1] < self.map_range["min_y"] or coord[0] > self.map_range["max_y"]:
+        elif coord[1] < self.map_range["min_y"] or coord[1] > self.map_range["max_y"]:
             jm_result = False
         else:
             jm_result = True
@@ -103,11 +103,13 @@ class HumanCoordGeneratorSrv():
 
     def createDict(self, list_len):
         # map座標系に変換してlocation dictを作成
+        print(list_len)
         for i in range(list_len):
             frame_id = "human_" + str(i)
             #frame_id + "human_0"
             human_dict = self.ghc.execute(frame_id, self.dist_data.points[i].x, self.dist_data.points[i].y)
-            print(f"human dist -->> {human_dict}")
+            #print(f"human dist -->> {human_dict}")
+            print(frame_id)
             if self.judgeMapin(human_dict[frame_id]):
                 print("judgeMapin = True")
                 #new_id = "human_" + str(self.h_dict_count)

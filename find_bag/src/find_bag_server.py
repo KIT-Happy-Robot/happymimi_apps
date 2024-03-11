@@ -192,7 +192,7 @@ class FindBag():
         return self.laser_list[self.center_index]
 
     def bagGrasp(self, left_right, coordinate=[0.25, 0.4]):
-        move_angle = 4.0
+        move_angle = 8.0
         if left_right == 'left':
             move_angle = -move_angle
         else:

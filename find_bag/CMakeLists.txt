@@ -10,8 +10,9 @@ project(find_bag)
 find_package(catkin REQUIRED COMPONENTS
   message_generation
   geometry_msgs
-  happymimi_msgs
-  happymimi_manipulation_msgs
+  #by Okuse
+  #happymimi_msgs
+  #happymimi_manipulation_msgs
   roscpp
   rospy
   std_msgs

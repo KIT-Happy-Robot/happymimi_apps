@@ -29,7 +29,7 @@ class BaseControl():
         # Value
         self.twist_value = Twist()
         self.target_time = 0.0
-        self.rate = rospy.Rate(1.0)
+        #self.rate = rospy.Rate()
         self.anglar_vel = 0.0  # 角速度
         self.quaternion = (0.0, 0.0, 0.0, 0.0)   # クォータニオン (x, y, z, w)
         self.current_euler = []   # オイラー角 [roll: x, Pitch: Y, Yaw: z]
@@ -178,7 +178,10 @@ class BaseControl():
             pass
         speed = abs(speed)
         self.target_time = abs(dist / speed)
-        self.twist_value.linear.x = dist/abs(dist)*speed
+        try:
+            self.twist_value.linear.x = dist/abs(dist)*speed
+        except ZeroDivisionError:
+            print("*dist* divided by zero")
         print("\n========== START translateDist ==========")
         self.publishLinerX()
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <launch>
   <!-- Param -->
-  <rosparam file="$(find happymimi_params)/param/object_mapping.yaml" command="load" ns="/object_mapping" />
+  <rosparam file="$(find happymimi_params)/object/object_mapping.yaml" command="load" ns="/object_mapping" />
   <rosparam file="$(find actplan_executor)/config/act_state.yaml" command="load" ns="/act_state" />
 
   <!-- Node -->

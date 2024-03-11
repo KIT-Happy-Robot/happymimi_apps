@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #--------------------------------------------------------------------
 # Title: ActionPlanから行動を決定して実行するアクションサーバー
@@ -37,8 +37,8 @@ class DecideAction(smach.State):
         rospy.loginfo('Executing state: DECIDE_ACTION')
         a_count = userdata.a_num_in
         a_plan = userdata.goal_in
-        print str(a_count)
-        print a_plan
+        print(str(a_count))
+        print(a_plan)
         if a_count < len(a_plan.action):
             a_name = a_plan.action[a_count]
             userdata.a_action_out = a_name
@@ -65,7 +65,7 @@ class Move(smach.State):
         name = userdata.action_in
         data = userdata.data_in
         if name == 'go':
-            print data
+            print(data)
             tts_srv('Move to ' + data)
             result = self.navi_srv(data).result
         elif name == 'approach':
