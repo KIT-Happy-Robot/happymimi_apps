@@ -1102,6 +1102,7 @@ int Robot::checkCollision(double *avoid_angle)
             }
         }
     }
+    return DANGER // Takuchan追加。デフォルトVALUE
 }
 
 /**
