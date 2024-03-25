@@ -7,7 +7,7 @@ from happymimi_recognition_msgs.srv import LeftRight2xyz
 import roslib
 import sys
 import os
-from std_msgs.msg import String,Bool
+from std_msgs.msg import String,Bool,Float64
 from happymimi_msgs.srv import StrTrg
 from happymimi_manipulation_msgs.srv import ArmControl
 import math
@@ -24,16 +24,23 @@ class FindBagV8():
         self.eef = rospy.Publisher('/servo/endeffector',Bool,queue_size=10)
         self.arm_pose = rospy.ServiceProxy('/servo/arm', StrTrg)
         self.manipulation = rospy.ServiceProxy('/servo/debug_arm', ArmControl)
+        self.arm_debug = rospy.ServiceProxy('/servo/debug_arm',ArmControl)
+        self.head = rospy.Publisher('/servo/head',Float64)
         self.base_control = BaseControl()
 
+        self.h = 0.1    #肩モータとrealsenseの距離[m]
         self.center_x = 320 #画像サイズが640の場合(640/2)
+        self.center_y = 240 #画像サイズが480の場合(480/2)
 
+    #人の指さした方向をもらう
     def LRCB(self, msg):
         self.lrmsg = msg.data
 
+    #紙バッグの座標を返してもらう
     def get_bag_dist(self):
         while not rospy.is_shutdown():
                 self.x,self.y,self.z = self.bag(self.lrmsg)
+                print("x:{},y:{},z:{}".format(self.x,self.y,self.z))
                 if self.x == -1 or self.y == -1 or self.z == -1:
                     rospy.loginfo("paper bag not found")
                 else:
@@ -43,11 +50,16 @@ class FindBagV8():
     def grasp_bag(self):
         self.arm_pose('carry')
         self.eef.publish(False)
+        rospy.sleep(0.5)
+        self.head.publish(-20)
+        rospy.sleep(0.5)
         self.get_bag_dist() #xyzの値を取得
         x1 = self.x
         z_theta = self.z * (math.pi / 12) #rθ,θ=pi/12,r=z
         change_units = z_theta / abs(self.center_x - x1) #単位を変更するため
+        rospy.sleep(0.5)
 
+        rospy.loginfo('Rotation for measurement')
         #計算のための計測
         if x1 < 320: #把持するバッグが中央から左にある場合
             self.base_control.rotateAngle(-15, precision=1, speed=0.7, time_out=20)
@@ -61,6 +73,7 @@ class FindBagV8():
         move_angle = dx * change_units * (180 / math.pi) #初期角度から回転すべき角度
         add_move_angle = move_angle - 15 #追加で回転する角度
 
+        rospy.loginfo('add Rotation')
         #追加で回転
         if x1 < 320:
             self.base_control.rotateAngle(-add_move_angle, precision=1, speed=0.7, time_out=20)
@@ -70,30 +83,35 @@ class FindBagV8():
         rospy.sleep(0.5)
 
         #接近
+        rospy.loginfo('approach bag')
         self.get_bag_dist() #xyzの値を更新
-        self.base_control.translateDist(self.z - 0.5)
         rospy.sleep(0.5)
+        self.base_control.translateDist(self.z - 1.0)
+        for i in range(21,30):
+            self.get_bag_dist()
+            if self.y >= 230 and self.y <= 250: #230<=y<=250
+                theta = i
+                break
+            else:
+                self.head.publish(i)
 
 
-        #ここからyoloで対応できるか謎
-        #位置合わせ
-        #self.get_bag_dist() #xyzの値を更新
+        arm_x = self.z * math.cos(theta*(math.pi/180)) - self.h
+        distance = self.z * math.sin(theta*(math.pi/180)) - 0.25
+        arm_y = self.z * math.sin(theta*(math.pi/180)) - distance
+        coordinate = [arm_x,arm_y]
+        print(coordinate)
+        self.arm_debug(coordinate)
+        rospy.sleep(0.5)
+        self.base_control.translateDist(distance)
+        rospy.sleep(0.5)
         self.eef.publish(True)
         rospy.sleep(0.5)
         self.arm_pose('carry')
-        
         rospy.loginfo('I have a bag.')
 
         
-        
-
-
-
 if __name__ == '__main__':
     rospy.init_node('find_bag_v8_node')
     fb = FindBagV8()
     rospy.spin()
-
-
-
-
