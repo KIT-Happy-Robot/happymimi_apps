@@ -63,6 +63,7 @@ add_service_files(
   FILES
   FindBagSrv.srv
   GraspBagSrv.srv
+  FindBagV8Srv.srv
   )
 
 ## Generate actions in the 'action' folder
