@@ -20,7 +20,8 @@ from base_control import BaseControl
 
 class FindBagV8():
     def __init__(self):
-        rospy.Subscriber("/left_right_recognition", String, self.LRCB)
+        #rospy.Subscriber("/left_right_recognition", String, self.LRCB)
+        rospy.Subscriber("/direction_of_hands", String, self.LRCB)
         self.bag = rospy.ServiceProxy('Coordinate_PaperBag',LeftRight2xyz)
         self.eef = rospy.Publisher('/servo/endeffector',Bool,queue_size=10)
         self.arm_pose = rospy.ServiceProxy('/servo/arm', StrTrg)
@@ -33,10 +34,14 @@ class FindBagV8():
         self.center_x = 320 #画像サイズが640の場合(640/2)
         self.center_y = 240 #画像サイズが480の場合(480/2)
         srv = rospy.Service("find_paper_bag_v8",FindBagV8Srv,self.grasp_bag())
+        self.lrmsg = None
 
     #人の指さした方向をもらう
     def LRCB(self, msg):
-        self.lrmsg = msg.data
+        if self.lrmsg == "":
+            self.lrmsg = msg.data
+        else:
+            pass
 
     #紙バッグの座標を返してもらう
     def get_bag_dist(self):
