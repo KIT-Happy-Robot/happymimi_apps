@@ -8,16 +8,21 @@ import tf2_ros
 import tf
 import rosparam
 import actionlib
+
 from geometry_msgs.msg import Point
 from happymimi_msgs.srv import SimpleTrg, SimpleTrgResponse
 from happymimi_recognition_msgs.srv import MultipleLocalize
 from approach_person.msg import PubHumanTFAction, PubHumanTFGoal
 
-
 file_path = roslib.packages.get_pkg_dir('happymimi_teleop') + '/src/'
 sys.path.insert(0, file_path)
 from base_control import BaseControl
 
+#add koya
+file_yolo_path = roslib.packages.get_pkg_dir('unknown_object_recognition') + '/script/'
+file_yolo_config = roslib.packages.get_pkg_dir('unknown_object_recognition') + '/config/uor_object_location.yaml'
+sys.path.insert(1,file_yolo_path)
+from yolow_server import YoloWorld_Server
 
 class GenerateHumanCoord():
     def __init__(self):
@@ -65,6 +70,10 @@ class HumanCoordGeneratorSrv():
         # Value
         self.dist_data = MultipleLocalize()
         self.ghc = GenerateHumanCoord()
+        
+        ##add koya
+        self.yoloworld = YoloWorld_Server()
+        ##
         self.bc = BaseControl()
         self.human_coord_dict = {}
         self.h_dict_count = 0
@@ -119,28 +128,21 @@ class HumanCoordGeneratorSrv():
        # self.i += 1
 
     def execute(self, srv_req):
-        # while len(self.human_coord_dict) < 1:
-        # for i in range(2):
-        #for i in range(1):
+        
         print ("count num: " + str(self.h_dict_count))
-        # if i != 0:
-            # self.bc.rotateAngle(-45, 0.3)
         # 人がいるか
         self.dist_data = self.ml_srv(target_name = "person")
+        
+        #add Koya
+        self.dist_data = YoloWorld_Server.load_yaml_to(file_yolo_path)
+        ##
+        
         print(self.dist_data)
         list_len  = len(list(self.dist_data.points))
-        # print list_len
         if list_len == 0 :
-            # self.bc.rotateAngle(-75)
-            # rospy.sleep(2.0)
             pass
         else:
             self.createDict(list_len)
-            # 台車の回転
-            #if i < 2:
-            #    self.bc.rotateAngle(-50, 0.3)
-            #    rospy.sleep(1.0)
-       # self.human_coord_dict.clear()
         self.saveDict()
         print("====================")
         print(self.human_coord_dict)
