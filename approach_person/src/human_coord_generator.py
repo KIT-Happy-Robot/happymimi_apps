@@ -8,9 +8,11 @@ import tf2_ros
 import tf
 import rosparam
 import actionlib
+import yaml
+import numpy
 
 from geometry_msgs.msg import Point
-from happymimi_msgs.srv import SimpleTrg, SimpleTrgResponse
+from happymimi_msgs.srv import SimpleTrg, SimpleTrgResponse, SetStr, StrToStr
 from happymimi_recognition_msgs.srv import MultipleLocalize
 from approach_person.msg import PubHumanTFAction, PubHumanTFGoal
 
@@ -18,11 +20,7 @@ file_path = roslib.packages.get_pkg_dir('happymimi_teleop') + '/src/'
 sys.path.insert(0, file_path)
 from base_control import BaseControl
 
-#add koya
-file_yolo_path = roslib.packages.get_pkg_dir('unknown_object_recognition') + '/script/'
-file_yolo_config = roslib.packages.get_pkg_dir('unknown_object_recognition') + '/config/uor_object_location.yaml'
-sys.path.insert(1,file_yolo_path)
-from yolow_server import YoloWorld_Server
+file_config_path = roslib.packages.get_pkg_dir('unknown_object_recognition') + '/config/uor_object_location.yaml'
 
 class GenerateHumanCoord():
     def __init__(self):
@@ -53,7 +51,7 @@ class GenerateHumanCoord():
             except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
                 self.rate.sleep()
                 continue
-            self.rate.sleep()
+        self.rate.sleep()
         self.sac.cancel_goal()
         print(f"ghc >>> {self.human_dict}")
         return self.human_dict
@@ -61,18 +59,18 @@ class GenerateHumanCoord():
 
 class HumanCoordGeneratorSrv():
     def __init__(self):
-        hcg_srv = rospy.Service('human_coord_generator', SimpleTrg, self.execute)
+        #hcg_srv = rospy.Service('human_coord_generator', SimpleTrg, self.execute)
+        hcg_srv = rospy.Service('human_coord_generator', StrToStr, self.execute)
         rospy.loginfo("Ready to human_coord_generator server")
         # Service
-        self.ml_srv = rospy.ServiceProxy('/recognition/multiple_localize', MultipleLocalize)
+        #self.ml_srv = rospy.ServiceProxy('/recognition/multiple_localize', MultipleLocalize)
+        self.yo_srv = rospy.ServiceProxy('/uor/yolo_server', SetStr)
         # Param
         self.map_range = rospy.get_param('/map_range')
         # Value
-        self.dist_data = MultipleLocalize()
+        #self.dist_data = MultipleLocalize()
         self.ghc = GenerateHumanCoord()
         
-        ##add koya
-        self.yoloworld = YoloWorld_Server()
         ##
         self.bc = BaseControl()
         self.human_coord_dict = {}
@@ -126,16 +124,35 @@ class HumanCoordGeneratorSrv():
                 pass
         #self.h_dict_count += 1
        # self.i += 1
-
+       
+    def load_yaml_to(self,file_path):
+        points = []
+        point = Point()
+        with open(file_path, 'r') as file:
+            yaml_data = yaml.safe_load(file)
+            if yaml_data:
+                for key, value in yaml_data.items():
+                    if isinstance(value, list) and len(value) == 3:
+                        point.x = value[0]
+                        point.y = value[1]
+                        point.z = value[2]
+                        return points.append(point)
+                    else:
+                        rospy.logwarn("Invalid data format for key %s", key)
+                        point.x = numpy.nan
+                        point.y = numpy.nan
+                        point.z = numpy.nan
+                        return points.append(point)
+    
     def execute(self, srv_req):
         
         print ("count num: " + str(self.h_dict_count))
         # 人がいるか
-        self.dist_data = self.ml_srv(target_name = "person")
-        
-        #add Koya
-        self.dist_data = YoloWorld_Server.load_yaml_to(file_yolo_path)
-        ##
+        if srv_req != "yolo":
+            self.dist_data = self.ml_srv(target_name = "person")
+        else:
+            self.yo_srv()
+            self.dist_data = self.load_yaml_to(file_config_path)
         
         print(self.dist_data)
         list_len  = len(list(self.dist_data.points))
