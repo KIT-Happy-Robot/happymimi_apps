@@ -8,7 +8,7 @@ import roslib
 import sys
 import os
 from std_msgs.msg import String,Bool,Float64
-from happymimi_msgs.srv import StrTrg
+from happymimi_msgs.srv import StrTrg,SetStr
 from happymimi_manipulation_msgs.srv import ArmControl
 import math
 from find_bag.srv import FindBagV8Srv,FindBagV8SrvResponse
@@ -21,46 +21,56 @@ from base_control import BaseControl
 class FindBagV8():
     def __init__(self):
         #rospy.Subscriber("/left_right_recognition", String, self.LRCB)
-        rospy.Subscriber("/direction_of_hands", String, self.LRCB)
+        #rospy.Subscriber("/direction_of_hands", String, self.LRCB)
+        self.lrsrv = rospy.ServiceProxy('direction_of_hands_srv',SetStr)
         self.bag = rospy.ServiceProxy('Coordinate_PaperBag',LeftRight2xyz)
         self.eef = rospy.Publisher('/servo/endeffector',Bool,queue_size=10)
         self.arm_pose = rospy.ServiceProxy('/servo/arm', StrTrg)
         self.manipulation = rospy.ServiceProxy('/servo/debug_arm', ArmControl)
         self.arm_debug = rospy.ServiceProxy('/servo/debug_arm',ArmControl)
-        self.head = rospy.Publisher('/servo/head',Float64)
+        self.head = rospy.Publisher('/servo/head',Float64,queue_size=10)
         self.base_control = BaseControl()
-
-        self.h = 0.1    #肩モータとrealsenseの距離[m]
+        self.h = 0.2    #肩モータとrealsenseの距離[m]
+        self.lr = None
         self.center_x = 320 #画像サイズが640の場合(640/2)
         self.center_y = 240 #画像サイズが480の場合(480/2)
-        srv = rospy.Service("find_paper_bag_v8",FindBagV8Srv,self.grasp_bag())
-        self.lrmsg = None
+        srv = rospy.Service("find_paper_bag_v8",FindBagV8Srv,self.grasp_bag)
+        
+        rospy.loginfo("start find bag")
+        rospy.loginfo("waithing...")
 
+    """
     #人の指さした方向をもらう
     def LRCB(self, msg):
-        if self.lrmsg == "":
-            self.lrmsg = msg.data
-        else:
-            pass
-
+        self.lrmsg = msg.data
+        if self.lrmsg != "None":
+            self.lr = self.lrmsg
+    """
     #紙バッグの座標を返してもらう
     def get_bag_dist(self):
         while not rospy.is_shutdown():
-                self.x,self.y,self.z = self.bag(self.lrmsg)
-                print("x:{},y:{},z:{}".format(self.x,self.y,self.z))
-                if self.x == -1 or self.y == -1 or self.z == -1:
-                    rospy.loginfo("paper bag not found")
-                else:
-                    rospy.loginfo("found a paper bag")
-                    break
+            self.x,self.y,self.z = self.bag(self.lr)
+            print("x:{},y:{},z:{}".format(self.x,self.y,self.z))
+            if self.x == -1 or self.y == -1 or self.z == -1:
+                rospy.loginfo("paper bag not found")
+            else:
+                rospy.loginfo("found a paper bag")
+                break
 
-    def grasp_bag(self):
+    def grasp_bag(self,req):
+        self.req = req
         try:
+            self.head.publish(0)
+            rospy.sleep(0.5)
+            self.lr = self.lrsrv().result
+            print(self.lr)
             self.arm_pose('carry')
+            rospy.sleep(0.5)
             self.eef.publish(False)
             rospy.sleep(0.5)
-            self.head.publish(-20)
+            self.head.publish(20)
             rospy.sleep(0.5)
+            print("gc")
             self.get_bag_dist() #xyzの値を取得
             x1 = self.x
             z_theta = self.z * (math.pi / 12) #rθ,θ=pi/12,r=z

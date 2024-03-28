@@ -40,6 +40,7 @@ class EnterRoomServer():
         try:
             safe_dist = 1.0
             target_dist = srv_req.distance + self.front_laser_dist
+            print(target_dist)
 
             self.tts_srv('Prease open the door')
             print("Prease open the door")
