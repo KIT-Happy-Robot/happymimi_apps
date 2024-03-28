@@ -1,5 +1,3 @@
-#req
-bool req
 ---
 #res
 bool result
